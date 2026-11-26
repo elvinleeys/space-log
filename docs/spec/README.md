@@ -28,7 +28,7 @@
 | [F1](features/f01-login.md) | 구글 로그인 | 둘 다 | R1 |
 | [F2](features/f02-save-record.md) | 기록 저장 | 둘 다 | R2 |
 | [F3](features/f03-group-recommend.md) | AI 그룹 추천 | 웹 | R3 |
-| [F4](features/f04-process-index.md) | 기록 가공·색인 | 웹 (Flask) | R4 |
+| [F4](features/f04-process-index.md) | 기록 가공·색인 | 웹 (FastAPI) | R4 |
 | [F5](features/f05-group-manage.md) | 그룹 관리 | 웹 | R3 |
 | [F6](features/f06-search.md) | 기록 찾기 | 웹 | R5 |
 | [F7](features/f07-record-view.md) | 기록 조회 | 웹 | R5 |
