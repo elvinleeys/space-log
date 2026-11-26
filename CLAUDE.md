@@ -45,8 +45,13 @@ npm workspaces 모노레포 (apps/worker는 Python이라 npm 대상 아님)
 - 두 앱에서 쓰는 컴포넌트는 packages/ui에 두고 앱 폴더에 복사 금지
 
 # 워크플로우
-- main에 직접 커밋·푸시 금지. 작업은 항상 기능별 브랜치에서 진행
-- 브랜치 이름: feature/기능명, fix/버그명 (예: feature/pdf-upload)
+- main에 직접 커밋·푸시 금지. 작업은 항상 개인 브랜치에서 진행
+- 브랜치 이름: {접두어}/{유형}/{기능명}  예) minji/feat/pdf-upload
+  - 유형은 커밋 접두어와 동일: feat / fix / chore / docs / refactor / test
+  - 기능명은 영어 소문자 + 하이픈(kebab-case)
+  - 접두어: CLAUDE.local.md의 "브랜치 접두어" 값을 사용
+  - 값이 없으면 git config user.name을 소문자로 바꾸고 공백을 하이픈으로 바꿔 사용
+  - 접두어를 알 수 없으면 브랜치를 만들기 전에 사용자에게 물어볼 것
 - 작업 완료 후 main으로 PR 생성, 최소 1명 승인 후 머지
 - PR 설명에 변경 내용, 변경 이유, 확인 방법을 적을 것
 - 커밋 메시지: feat / fix / chore / docs / refactor / test 접두어 + 한국어 설명
