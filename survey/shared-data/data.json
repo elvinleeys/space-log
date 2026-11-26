@@ -1,0 +1,438 @@
+{
+ "groups": [
+  {
+   "id": "p1",
+   "name": "개발"
+  },
+  {
+   "id": "p2",
+   "name": "마케팅"
+  },
+  {
+   "id": "p3",
+   "name": "디자인"
+  },
+  {
+   "id": "p4",
+   "name": "PO"
+  },
+  {
+   "id": "p5",
+   "name": "Python"
+  },
+  {
+   "id": "p6",
+   "name": "Claude"
+  },
+  {
+   "id": "p7",
+   "name": "분류 안 된 기록"
+  }
+ ],
+ "records": [
+  {
+   "id": "s1",
+   "title": "백로그 우선순위.csv",
+   "kind": "csv",
+   "group": "p4",
+   "fav": true,
+   "hour": 9,
+   "minute": 5,
+   "csv": {
+    "cols": [
+     "항목",
+     "가치",
+     "노력",
+     "우선순위"
+    ],
+    "rows": [
+     [
+      "회원가입 간소화",
+      "높음",
+      "작음",
+      "1"
+     ],
+     [
+      "검색 필터",
+      "높음",
+      "중간",
+      "2"
+     ],
+     [
+      "알림 설정",
+      "중간",
+      "작음",
+      "3"
+     ],
+     [
+      "다크 모드",
+      "중간",
+      "중간",
+      "4"
+     ],
+     [
+      "통계 화면",
+      "낮음",
+      "큼",
+      "5"
+     ],
+     [
+      "다국어 지원",
+      "낮음",
+      "큼",
+      "6"
+     ]
+    ]
+   },
+   "memo": "",
+   "size": "6행"
+  },
+  {
+   "id": "s2",
+   "title": "Git 자주 쓰는 명령어",
+   "kind": "text",
+   "group": "p1",
+   "fav": false,
+   "hour": 9,
+   "minute": 2,
+   "body": "git status: 바뀐 파일 보기\ngit add 파일: 올릴 파일 고르기\ngit commit -m \"메시지\": 기록 남기기\ngit push: 원격 저장소에 올리기\ngit pull: 원격 저장소에서 받아 오기",
+   "memo": "",
+   "size": "117자"
+  },
+  {
+   "id": "s3",
+   "title": "REST API 설계 가이드",
+   "kind": "link",
+   "group": "p1",
+   "fav": false,
+   "hour": 8,
+   "minute": 58,
+   "url": "https://example.com/study/rest-api-guide",
+   "host": "example.com",
+   "memo": "",
+   "size": "example.com"
+  },
+  {
+   "id": "s4",
+   "title": "컬러 팔레트 예시.png",
+   "kind": "image",
+   "group": "p3",
+   "fav": false,
+   "hour": 8,
+   "minute": 51,
+   "fileSize": "PNG · 640KB",
+   "thumb": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20580%20220%22%3E%3Crect%20width%3D%22580%22%20height%3D%22220%22%20fill%3D%22%23f5f5f7%22/%3E%3Crect%20x%3D%2224%22%20y%3D%2230%22%20width%3D%2296%22%20height%3D%22150%22%20rx%3D%2212%22%20fill%3D%22%232f6fe0%22/%3E%3Ctext%20x%3D%2272%22%20y%3D%22205%22%20font-size%3D%2215%22%20fill%3D%22%231d1d1f%22%20text-anchor%3D%22middle%22%3E%232f6fe0%3C/text%3E%3Crect%20x%3D%22132%22%20y%3D%2230%22%20width%3D%2296%22%20height%3D%22150%22%20rx%3D%2212%22%20fill%3D%22%237a4fd6%22/%3E%3Ctext%20x%3D%22180%22%20y%3D%22205%22%20font-size%3D%2215%22%20fill%3D%22%231d1d1f%22%20text-anchor%3D%22middle%22%3E%237a4fd6%3C/text%3E%3Crect%20x%3D%22240%22%20y%3D%2230%22%20width%3D%2296%22%20height%3D%22150%22%20rx%3D%2212%22%20fill%3D%22%23b8327f%22/%3E%3Ctext%20x%3D%22288%22%20y%3D%22205%22%20font-size%3D%2215%22%20fill%3D%22%231d1d1f%22%20text-anchor%3D%22middle%22%3E%23b8327f%3C/text%3E%3Crect%20x%3D%22348%22%20y%3D%2230%22%20width%3D%2296%22%20height%3D%22150%22%20rx%3D%2212%22%20fill%3D%22%23c2561f%22/%3E%3Ctext%20x%3D%22396%22%20y%3D%22205%22%20font-size%3D%2215%22%20fill%3D%22%231d1d1f%22%20text-anchor%3D%22middle%22%3E%23c2561f%3C/text%3E%3Crect%20x%3D%22456%22%20y%3D%2230%22%20width%3D%2296%22%20height%3D%22150%22%20rx%3D%2212%22%20fill%3D%22%231f7a55%22/%3E%3Ctext%20x%3D%22504%22%20y%3D%22205%22%20font-size%3D%2215%22%20fill%3D%22%231d1d1f%22%20text-anchor%3D%22middle%22%3E%231f7a55%3C/text%3E%3C/svg%3E",
+   "memo": "",
+   "size": "PNG · 640KB"
+  },
+  {
+   "id": "s5",
+   "title": "퍼널 분석 요약",
+   "kind": "text",
+   "group": "p2",
+   "fav": false,
+   "hour": 8,
+   "minute": 44,
+   "body": "퍼널은 사용자가 목표까지 가는 단계를 순서대로 나눈 것이다.\n방문 → 가입 → 첫 사용 → 결제\n단계 사이에서 가장 많이 빠지는 곳부터 고친다.",
+   "memo": "",
+   "size": "80자"
+  },
+  {
+   "id": "s6",
+   "title": "파이썬 리스트 메서드.csv",
+   "kind": "csv",
+   "group": "p5",
+   "fav": true,
+   "hour": 8,
+   "minute": 40,
+   "csv": {
+    "cols": [
+     "메서드",
+     "하는 일",
+     "예시"
+    ],
+    "rows": [
+     [
+      "append",
+      "끝에 하나 넣기",
+      "a.append(3)"
+     ],
+     [
+      "extend",
+      "여러 개 이어 붙이기",
+      "a.extend([4, 5])"
+     ],
+     [
+      "insert",
+      "원하는 자리에 넣기",
+      "a.insert(0, 1)"
+     ],
+     [
+      "pop",
+      "꺼내면서 지우기",
+      "a.pop()"
+     ],
+     [
+      "remove",
+      "값으로 지우기",
+      "a.remove(3)"
+     ],
+     [
+      "sort",
+      "정렬하기",
+      "a.sort()"
+     ],
+     [
+      "reverse",
+      "순서 뒤집기",
+      "a.reverse()"
+     ],
+     [
+      "index",
+      "위치 찾기",
+      "a.index(3)"
+     ]
+    ]
+   },
+   "memo": "",
+   "size": "8행"
+  },
+  {
+   "id": "s7",
+   "title": "타이포그래피 기초 글",
+   "kind": "link",
+   "group": "p3",
+   "fav": false,
+   "hour": 8,
+   "minute": 33,
+   "url": "https://example.com/study/typography-basics",
+   "host": "example.com",
+   "memo": "",
+   "size": "example.com"
+  },
+  {
+   "id": "s8",
+   "title": "사용자 스토리 쓰는 법",
+   "kind": "text",
+   "group": "p4",
+   "fav": true,
+   "hour": 8,
+   "minute": 21,
+   "body": "형식: (누구)로서, (무엇)을 하고 싶다. (왜)냐하면.\n예: 학생으로서, 저장한 자료를 한 번에 찾고 싶다. 과제할 때 시간을 아끼고 싶기 때문이다.\n완료 조건을 함께 적는다.",
+   "memo": "",
+   "size": "100자"
+  },
+  {
+   "id": "s9",
+   "title": "광고 채널별 성과.csv",
+   "kind": "csv",
+   "group": "p2",
+   "fav": false,
+   "hour": 8,
+   "minute": 12,
+   "csv": {
+    "cols": [
+     "채널",
+     "노출",
+     "클릭",
+     "전환"
+    ],
+    "rows": [
+     [
+      "검색 광고",
+      "12000",
+      "480",
+      "36"
+     ],
+     [
+      "SNS 광고",
+      "30000",
+      "600",
+      "24"
+     ],
+     [
+      "이메일",
+      "5000",
+      "350",
+      "42"
+     ],
+     [
+      "블로그",
+      "8000",
+      "240",
+      "12"
+     ],
+     [
+      "제휴",
+      "4000",
+      "100",
+      "5"
+     ]
+    ]
+   },
+   "memo": "",
+   "size": "5행"
+  },
+  {
+   "id": "s10",
+   "title": "프롬프트 구조 그림.png",
+   "kind": "image",
+   "group": "p6",
+   "fav": false,
+   "hour": 7,
+   "minute": 55,
+   "fileSize": "PNG · 420KB",
+   "thumb": "data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20580%20220%22%3E%3Crect%20width%3D%22580%22%20height%3D%22220%22%20fill%3D%22%23fff%22/%3E%3Crect%20x%3D%2230%22%20y%3D%2270%22%20width%3D%22150%22%20height%3D%2280%22%20rx%3D%2214%22%20fill%3D%22%232f6fe0%22/%3E%3Ctext%20x%3D%22105%22%20y%3D%22117%22%20font-size%3D%2220%22%20fill%3D%22%23fff%22%20text-anchor%3D%22middle%22%3E%EB%A7%A5%EB%9D%BD%3C/text%3E%3Crect%20x%3D%22215%22%20y%3D%2270%22%20width%3D%22150%22%20height%3D%2280%22%20rx%3D%2214%22%20fill%3D%22%237a4fd6%22/%3E%3Ctext%20x%3D%22290%22%20y%3D%22117%22%20font-size%3D%2220%22%20fill%3D%22%23fff%22%20text-anchor%3D%22middle%22%3E%ED%98%95%EC%8B%9D%3C/text%3E%3Crect%20x%3D%22400%22%20y%3D%2270%22%20width%3D%22150%22%20height%3D%2280%22%20rx%3D%2214%22%20fill%3D%22%231f7a55%22/%3E%3Ctext%20x%3D%22475%22%20y%3D%22117%22%20font-size%3D%2220%22%20fill%3D%22%23fff%22%20text-anchor%3D%22middle%22%3E%ED%8C%90%EB%8B%A8%20%EA%B8%B0%EC%A4%80%3C/text%3E%3Cpath%20d%3D%22M185%20110h25M370%20110h25%22%20stroke%3D%22%23aeaeb2%22%20stroke-width%3D%224%22/%3E%3Ctext%20x%3D%22290%22%20y%3D%2240%22%20font-size%3D%2220%22%20fill%3D%22%231d1d1f%22%20text-anchor%3D%22middle%22%3E%ED%94%84%EB%A1%AC%ED%94%84%ED%8A%B8%20%EA%B5%AC%EC%A1%B0%3C/text%3E%3C/svg%3E",
+   "memo": "",
+   "size": "PNG · 420KB"
+  },
+  {
+   "id": "s11",
+   "title": "나중에 볼 공부법 메모",
+   "kind": "text",
+   "group": "p7",
+   "fav": false,
+   "hour": 7,
+   "minute": 48,
+   "body": "25분 공부하고 5분 쉬는 방법을 일주일만 해 보기.",
+   "memo": "",
+   "size": "29자"
+  },
+  {
+   "id": "s12",
+   "title": "리스트 컴프리헨션 예제",
+   "kind": "text",
+   "group": "p5",
+   "fav": false,
+   "hour": 7,
+   "minute": 30,
+   "body": "squares = [x * x for x in range(5)]\n# [0, 1, 4, 9, 16]\nevens = [x for x in range(10) if x % 2 == 0]\n# [0, 2, 4, 6, 8]",
+   "memo": "",
+   "size": "117자"
+  },
+  {
+   "id": "s13",
+   "title": "Claude 프롬프트 작성 팁",
+   "kind": "text",
+   "group": "p6",
+   "fav": false,
+   "hour": 7,
+   "minute": 22,
+   "body": "1. 맥락을 먼저 알려 준다(누가, 왜, 무엇을 위해).\n2. 원하는 결과물의 형식을 적는다.\n3. 좋은 결과의 판단 기준을 함께 건넨다.",
+   "memo": "",
+   "size": "77자"
+  }
+ ],
+ "chat": [
+  {
+   "keys": [
+    "백로그",
+    "우선순위"
+   ],
+   "sources": [
+    "s1"
+   ],
+   "text": "백로그 우선순위.csv에 항목 6개가 있어요. 1순위는 회원가입 간소화(가치 높음, 노력 작음), 2순위는 검색 필터예요."
+  },
+  {
+   "keys": [
+    "git",
+    "깃",
+    "명령어"
+   ],
+   "sources": [
+    "s2"
+   ],
+   "text": "Git 자주 쓰는 명령어에 다섯 개가 있어요. status, add, commit, push, pull이에요."
+  },
+  {
+   "keys": [
+    "api",
+    "rest"
+   ],
+   "sources": [
+    "s3"
+   ],
+   "text": "REST API 설계 가이드 링크를 넣어 두었어요."
+  },
+  {
+   "keys": [
+    "퍼널",
+    "단계"
+   ],
+   "sources": [
+    "s5"
+   ],
+   "text": "퍼널은 사용자가 목표까지 가는 단계예요. 방문 → 가입 → 첫 사용 → 결제 순서이고, 가장 많이 빠지는 단계부터 고쳐요."
+  },
+  {
+   "keys": [
+    "광고",
+    "채널",
+    "전환",
+    "클릭"
+   ],
+   "sources": [
+    "s9"
+   ],
+   "text": "광고 채널별 성과.csv에 채널 5개가 있어요. 전환은 이메일이 42건으로 가장 많고, 클릭은 SNS 광고가 600번으로 가장 많아요."
+  },
+  {
+   "keys": [
+    "리스트",
+    "메서드",
+    "append"
+   ],
+   "sources": [
+    "s6",
+    "s12"
+   ],
+   "text": "파이썬 리스트 메서드.csv에 메서드 8개가 있어요. append는 끝에 하나 넣기, extend는 여러 개 이어 붙이기, pop은 꺼내면서 지우기예요."
+  },
+  {
+   "keys": [
+    "컴프리헨션",
+    "comprehension"
+   ],
+   "sources": [
+    "s12"
+   ],
+   "text": "리스트 컴프리헨션 예제가 두 개 있어요. [x * x for x in range(5)]는 제곱 수, [x for x in range(10) if x % 2 == 0]은 짝수만 고른 리스트예요."
+  },
+  {
+   "keys": [
+    "사용자 스토리",
+    "스토리"
+   ],
+   "sources": [
+    "s8"
+   ],
+   "text": "사용자 스토리는 \"(누구)로서, (무엇)을 하고 싶다. (왜)냐하면.\" 형식으로 쓰고, 완료 조건을 함께 적어요."
+  },
+  {
+   "keys": [
+    "프롬프트",
+    "claude",
+    "클로드"
+   ],
+   "sources": [
+    "s13",
+    "s10"
+   ],
+   "text": "Claude 프롬프트 작성 팁은 세 가지예요. 맥락을 먼저 알려 주기, 결과물의 형식 적기, 판단 기준 함께 건네기."
+  },
+  {
+   "keys": [
+    "타이포",
+    "글꼴",
+    "컬러",
+    "팔레트"
+   ],
+   "sources": [
+    "s7",
+    "s4"
+   ],
+   "text": "디자인 그룹에 타이포그래피 기초 글 링크와 컬러 팔레트 예시 사진이 있어요."
+  }
+ ]
+}
