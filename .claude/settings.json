@@ -20,6 +20,16 @@
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/prune-merged-branches.mjs\""
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/format.mjs\"",
+            "statusMessage": "Prettier·ESLint 실행 중"
+          }
+        ]
       }
     ]
   }

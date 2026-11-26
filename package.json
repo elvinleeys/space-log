@@ -1,0 +1,23 @@
+{
+  "name": "space-log",
+  "private": true,
+  "workspaces": [
+    "apps/desktop",
+    "apps/web",
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.15.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.74.0"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "format": "prettier --write apps packages"
+  }
+}
