@@ -8,6 +8,9 @@
 erDiagram
   user["사용자"] {
     text user_id "사용자 식별값, 필수"
+    text display_name "표시 이름"
+    text avatar_url "프로필 사진"
+    text email "이메일"
   }
   record_group["그룹 (행성)"] {
     text group_id "그룹 식별값, 필수"
@@ -62,9 +65,16 @@ erDiagram
 
 | 필드 | 타입 | 필수 | 설명 | 예시값 |
 | --- | --- | --- | --- | --- |
-| user_id | 글자 | 필수 | 그룹과 정보 기록의 주인 | user_001 |
+| user_id | 글자 | 필수 | Supabase 인증 사용자 id. 이메일을 식별값으로 쓰지 않는다 | user_001 |
+| display_name | 글자 | 선택 | 처음엔 구글 이름(name)을 복사, 사용자가 설정에서 변경 가능 | 김우주 |
+| avatar_url | 글자 | 선택 | 구글 프로필 사진(picture) 주소 | https://example.com/a.png |
+| email | 글자 | 선택 | 구글 이메일. 알림 채널이 정해진 뒤 필요 없으면 삭제 검토 | user@example.com |
 
-[확인 필요: 이름, 이메일, 표시 이름 등 저장할 개인정보 항목]
+- 가입할 때 구글 정보(name, picture, email)를 이 테이블로 복사하는 트리거를 둔다
+- Supabase 인증 정보가 바뀔 때는 avatar_url과 email만 다시 복사한다. display_name은 사용자가 바꾼 이름을 지키기 위해 덮어쓰지 않는다
+- [확인 필요: 표시 이름 길이와 빈 값 규칙]
+- 세 필드 모두 선택 칸. 쓰지 않게 되면 쓰는 곳(웹 화면, 타입)과 같은 PR에서 지운다
+- [확인 필요: 구글이 이름을 주지 않았을 때 사이드바에 보일 값] 구글은 이름과 사진을 항상 준다고 보장하지 않는다
 
 ## 그룹 (record_group)
 기록을 묶는 행성. 이름을 바꿔도 기록은 고치지 않는다.
