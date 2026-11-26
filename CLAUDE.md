@@ -34,7 +34,7 @@ npm workspaces 모노레포. workspaces는 ["apps/desktop", "apps/web", "package
 
 # 데이터 원칙
 - Supabase DB가 기준 데이터. Qdrant는 DB와 Storage로 다시 만들 수 있는 검색 색인
-- 업로드한 원본 파일은 가공이 끝나도 Storage에 그대로 둔다
+- 출처 링크(source_url)가 있는 파일은 가공 성공(done) 후 Storage 원본을 지우고 출처 링크로 본다. 출처 링크가 없는 파일(내 컴퓨터에서 올린 파일, 화면 캡처)은 원본을 유지한다. 가공에 실패한 파일은 지우지 않는다
 - URL·영상 링크의 원문 글은 저장하지 않는다 (원문 링크만 저장)
 - 지원 파일: csv, txt, md, jpeg, jpg, png, svg, HTML, PDF. 파일 1개 10MB까지
 - TS 코드의 Supabase SDK는 packages/shared 안에서만 import. Qdrant SDK는 키가 필요하므로 apps/web 서버 코드에서만 import
