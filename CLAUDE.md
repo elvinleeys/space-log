@@ -8,7 +8,7 @@ Spacelog: 흩어진 기록을 한곳에 쉽게 저장하고, 필요할 때 쉽�
 npm workspaces 모노레포. workspaces는 ["apps/desktop", "apps/web", "packages/*"]로 명시 (apps/worker는 Python이라 제외)
 - apps/desktop: Electron (main / preload / renderer)
 - apps/web: Next.js + Tailwind CSS. 화면 + 서버 API (기록 생성, 업로드 권한, 가공 요청 전달, 조회·검색, 챗봇)
-- apps/worker: Flask (Python). 가공 전담
+- apps/worker: FastAPI (Python). 가공 전담
 - packages/shared: 공통 타입, 수집 함수, storage·vector 인터페이스 (TS)
 - packages/ui: 데스크톱·웹 공용 컴포넌트
 - supabase/migrations: DB 테이블 변경 기록

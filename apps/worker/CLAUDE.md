@@ -1,5 +1,5 @@
 # 역할
-Flask 가공 서버. 업로드된 기록에서 글자를 뽑아 요약하고 임베딩해 저장한다.
+FastAPI 가공 서버. 업로드된 기록에서 글자를 뽑아 요약하고 임베딩해 저장한다.
 담당: 웹 담당 개발자 (docs/tasks/dev-b-web.md)
 
 # 명세
@@ -8,8 +8,9 @@ Flask 가공 서버. 업로드된 기록에서 글자를 뽑아 요약하고 임
 
 # 명령어
 - python -m venv .venv 후 가상환경 활성화
-- pip install -r requirements.txt
-- flask --app app run --debug: 개발 서버
+- pip install -r requirements.txt (fastapi, uvicorn 포함)
+- uvicorn main:app --reload: 개발 서버 (앱 파일은 main.py, 앱 객체 이름은 app)
+- 개발 서버 실행 중 /docs 에서 요청·응답 형식 확인
 - pytest: 테스트
 - 새 패키지는 requirements.txt에 버전과 함께 추가
 
@@ -29,6 +30,11 @@ Flask 가공 서버. 업로드된 기록에서 글자를 뽑아 요약하고 임
 8. status를 done으로. 실패 시 failed + error_message 저장
 9. done이고 source_url이 있는 파일 기록이면 Storage 원본 삭제
 
+# FastAPI 규칙
+- 요청·응답 형식은 Pydantic 모델로 선언한다. 웹 서버와의 약속이므로 바꾸면 apps/web의 호출 코드도 같은 PR에서 수정
+- OCR, PDF 추출처럼 CPU를 오래 쓰는 작업을 async def 안에서 직접 실행하지 말 것 (그동안 서버 전체가 멈춤). 가공 함수는 일반 def로 두고 백그라운드에서 실행
+- [확인 필요: 백그라운드 실행 방식과 동시 처리 개수. BackgroundTasks, 프로세스 풀, DB의 queued 상태를 대기열로 쓰는 방식 중 선택]
+
 # Qdrant 규칙
 - 기록 1개에서 벡터가 여러 개 나온다. 벡터 식별값을 기록 식별값과 같게 쓰지 말 것
 - payload 필수: user_id, record_id, vector_kind(summary 또는 chunk). chunk는 chunk_index도 저장
@@ -43,11 +49,12 @@ Flask 가공 서버. 업로드된 기록에서 글자를 뽑아 요약하고 임
 # 파일 규칙
 - 원본 파일: 출처 링크(source_url)가 있는 파일은 가공 성공(done) 후 Storage 원본을 지우고 출처 링크로 본다. 출처 링크가 없는 파일(내 컴퓨터에서 올린 파일, 화면 캡처)은 원본을 유지한다. 가공에 실패한 파일은 지우지 않는다
 - 원본 삭제는 Supabase에 done을 저장한 뒤 마지막 단계에서 한다 [확인 필요: 삭제 후 file_path를 비울지, 삭제 시각을 따로 남길지]
-- 타입별 추출 로직은 processors/ 폴더에 함수로 분리. Flask 라우트에 직접 작성 금지
+- 타입별 추출 로직은 processors/ 폴더에 함수로 분리. FastAPI 경로 함수에 직접 작성 금지
 - OpenAI·Supabase·Qdrant 키와 X-Worker-Secret은 환경변수로만 읽기
 
 # 테스트
 - processors/ 함수는 pytest로 테스트 (샘플 파일은 tests/fixtures/)
+- API는 FastAPI의 TestClient로 테스트 (X-Worker-Secret 거부 확인 포함)
 
 # 미정 — 구현 전에 사용자에게 선택지를 주고 물어볼 것
 - 재시도 방식, 원문을 가져올 수 없는 링크(인스타그램, 유료 기사) 처리
