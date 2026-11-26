@@ -10,23 +10,23 @@ flowchart LR
   end
   api[웹 서버 API<br/>Next.js]
   storage[(Supabase Storage<br/>원본 파일)]
-  flask[Flask 서버<br/>추출·요약·임베딩]
+  worker[가공 서버 FastAPI<br/>추출·요약·임베딩]
   db[(Supabase DB<br/>기준 데이터)]
   qdrant[(Qdrant<br/>벡터 색인)]
   clients -- 1 기록 생성 요청 --> api
   clients -- 2 파일 업로드 --> storage
-  api -- 3 가공 요청 --> flask
-  storage -- 4 파일 읽기 --> flask
-  flask -- 5 요약·상태 저장 --> db
-  flask -- 6 벡터 저장 --> qdrant
+  api -- 3 가공 요청 --> worker
+  storage -- 4 파일 읽기 --> worker
+  worker -- 5 요약·상태 저장 --> db
+  worker -- 6 벡터 저장 --> qdrant
   api -- 7 조회·저장 --> db
   api -- 8 챗봇 검색 --> qdrant
 ```
 
 1. 기록 생성 요청: 데스크톱 앱과 웹이 웹 서버 API에 기록을 만들고 업로드 권한을 받는다
 2. 파일 업로드: 파일을 Storage에 직접 올린다. 메모·하이라이트·URL·영상 링크는 이 단계가 없다
-3. 가공 요청: 업로드가 끝나면 웹 서버 API가 Flask 서버에 가공을 요청한다
-4. 파일 읽기: Flask 서버가 Storage에서 파일을 받는다
+3. 가공 요청: 업로드가 끝나면 웹 서버 API가 가공 서버(FastAPI)에 가공을 요청한다
+4. 파일 읽기: 가공 서버가 Storage에서 파일을 받는다
 5. 요약·상태 저장: 요약본과 처리 상태를 Supabase DB에 저장한다
 6. 벡터 저장: 요약본 벡터와 원문 조각 벡터를 Qdrant에 올린다
 7. 조회·저장: 웹 서버 API가 기록, 그룹, 메모, 연결을 Supabase DB에서 읽고 쓴다

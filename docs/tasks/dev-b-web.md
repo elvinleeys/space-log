@@ -1,4 +1,4 @@
-# 개발자 B · 웹 (Flask 포함)
+# 개발자 B · 웹 (FastAPI 가공 서버 포함)
 맡는 폴더: apps/web, apps/worker
 읽을 것: apps/web/CLAUDE.md, apps/worker/CLAUDE.md, docs/spec/ 전체
 
@@ -6,7 +6,7 @@
 - [ ] B1. Next.js + Tailwind CSS 세팅
 - [ ] B2. Supabase 인증 구글 로그인, 첫 로그인 시 기본 그룹 생성, 데스크톱 로그인 콜백 이동 (데스크톱 A2와 맞물림)
 - [ ] B3. 수집 API: 기록 생성·업로드 권한 발급·업로드 완료 알림·worker 가공 요청 전달 (X-Worker-Secret)
-- [ ] B4. Flask worker: 요청 수신 → 형식별 추출 (PDF·HTML·txt·md·csv, 이미지 OCR, URL, 영상 링크) → 요약 → 요약본·원문 조각 벡터 Qdrant 저장 → 상태 갱신 → 주기적 재처리 + pytest
+- [ ] B4. FastAPI worker: Pydantic 요청 모델 정의 → 요청 수신 → 형식별 추출 (PDF·HTML·txt·md·csv, 이미지 OCR, URL, 영상 링크) → 요약 → 요약본·원문 조각 벡터 Qdrant 저장 → 상태 갱신 → 주기적 재처리 + pytest
 - [ ] B5. AI 그룹 추천과 새 그룹 이름 추천 [확인 필요: 처리 위치와 시점]
 
 ## 2단계 · 찾기
