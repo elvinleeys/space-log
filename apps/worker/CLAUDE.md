@@ -27,6 +27,7 @@ Flask 가공 서버. 업로드된 기록에서 글자를 뽑아 요약하고 임
 6. 요약본 벡터 1개 + 원문 조각 벡터 여러 개를 만들어 Qdrant에 저장
 7. Supabase에 요약본, embedding_model 저장
 8. status를 done으로. 실패 시 failed + error_message 저장
+9. done이고 source_url이 있는 파일 기록이면 Storage 원본 삭제
 
 # Qdrant 규칙
 - 기록 1개에서 벡터가 여러 개 나온다. 벡터 식별값을 기록 식별값과 같게 쓰지 말 것
@@ -40,7 +41,8 @@ Flask 가공 서버. 업로드된 기록에서 글자를 뽑아 요약하고 임
 - 같은 기록을 여러 번 처리해도 결과가 같아야 한다 (멱등성)
 
 # 파일 규칙
-- 원본 파일은 처리 후에도 Storage에서 지우지 않는다
+- 원본 파일: 출처 링크(source_url)가 있는 파일은 가공 성공(done) 후 Storage 원본을 지우고 출처 링크로 본다. 출처 링크가 없는 파일(내 컴퓨터에서 올린 파일, 화면 캡처)은 원본을 유지한다. 가공에 실패한 파일은 지우지 않는다
+- 원본 삭제는 Supabase에 done을 저장한 뒤 마지막 단계에서 한다 [확인 필요: 삭제 후 file_path를 비울지, 삭제 시각을 따로 남길지]
 - 타입별 추출 로직은 processors/ 폴더에 함수로 분리. Flask 라우트에 직접 작성 금지
 - OpenAI·Supabase·Qdrant 키와 X-Worker-Secret은 환경변수로만 읽기
 
