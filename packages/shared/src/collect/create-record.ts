@@ -2,12 +2,13 @@
 // 웹 서버가 이 검사로 요청을 거르고, 데스크톱·웹 클라이언트도 보내기 전에 같은 검사를 쓸 수 있다.
 import {
   CAPTURE_FILE_TYPES,
+  COLLECTABLE_RECORD_TYPES,
   COLLECTED_FROM,
+  CONTENT_RECORD_TYPES,
   FILE_RECORD_TYPES,
   MAX_FILE_SIZE,
   MAX_FILES_PER_RECORD,
   MAX_RECORD_TOTAL_SIZE,
-  RECORD_TYPES,
   SUPPORTED_FILE_TYPES,
   type CollectedFrom,
   type InformationRecord,
@@ -26,9 +27,10 @@ export interface CreateRecordRequest {
   collected_from: CollectedFrom;
   /** 비우면 첫 파일 이름(확장자 제외), 메모 첫 줄, 주소 순으로 채운다 */
   title?: string;
-  /** 메모·하이라이트 글. 파일 기록에도 함께 적을 수 있다 */
+  /** 메모·하이라이트 본문 전용. 다른 형식에 보내면 INVALID_INPUT */
   information_content?: string;
   source_url?: string;
+  /** 화면의 '메모'. 모든 형식에 적을 수 있다 */
   original_context?: string;
   /** 비우면 '분류 안 된 기록' */
   group_id?: string;
@@ -126,10 +128,10 @@ export function validateCreateRecordRequest(input: unknown): ValidationResult {
   const body = input as Record<string, unknown>;
 
   const recordType = body.record_type;
-  if (!RECORD_TYPES.includes(recordType as RecordType)) {
+  if (!COLLECTABLE_RECORD_TYPES.includes(recordType as RecordType)) {
     return fail(
       'INVALID_INPUT',
-      `record_type은 ${RECORD_TYPES.join(', ')} 중 하나여야 해요`,
+      `record_type은 ${COLLECTABLE_RECORD_TYPES.join(', ')} 중 하나여야 해요`,
     );
   }
   const collectedFrom = body.collected_from;
@@ -154,6 +156,16 @@ export function validateCreateRecordRequest(input: unknown): ValidationResult {
     return fail('GROUP_NOT_FOUND', '그룹을 찾을 수 없어요');
   if (value.source_url && !isHttpUrl(value.source_url)) {
     return fail('INVALID_INPUT', '출처 주소는 http 또는 https 주소여야 해요');
+  }
+  // 본문은 메모·하이라이트에만. 나머지 형식의 메모는 original_context로 받는다
+  if (
+    value.information_content &&
+    !CONTENT_RECORD_TYPES.includes(value.record_type)
+  ) {
+    return fail(
+      'INVALID_INPUT',
+      '메모는 original_context로 보내 주세요 (information_content는 메모·하이라이트 본문 전용)',
+    );
   }
 
   switch (value.record_type) {

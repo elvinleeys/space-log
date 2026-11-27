@@ -23,6 +23,11 @@ Next.js 웹. 수집 + 찾기 + 관리를 맡는다.
 - 요청 검사·응답 형식은 packages/shared의 validateCreateRecordRequest와 타입을 따른다. 오류 응답: `{ error: { code, message } }` (INVALID_INPUT 400, TOO_MANY_FILES 400, UNAUTHORIZED 401, GROUP_NOT_FOUND 404, FILE_TOO_LARGE 413, RECORD_TOO_LARGE 413, UNSUPPORTED_FILE_TYPE 415)
 - 화면의 기록 제목·파일 이름은 packages/shared의 displayRecordTitle·displayFileName으로 만든다 (DB에 저장하지 않음)
 - 로그인 확인: 데스크톱은 `Authorization: Bearer 토큰`, 웹은 쿠키 세션 (getAuthedClient)
+- 저장 때 worker에 보내는 요청은 자동 가공(글자 추출 + 원문 조각 벡터)만. AI 분석은 보내지 않는다
+- information_content는 memo·highlight 본문 전용. 다른 형식의 메모는 original_context (기록 상세의 '메모')
+- AI 분석 API (명세만, 구현은 다음 작업): `POST /api/records/{id}/analysis`(분석·다시 분석. 대상 url·video·file·capture, 같은 메모면 409 ANALYSIS_UNCHANGED, 분석 중이면 409), `DELETE /api/records/{id}/analysis`(지우기: AI 정리글 + 요약본 벡터, analysis_status none)
+- 메모 자동 저장 `PATCH /api/records/{id}` (original_context, '메모에 옮기기' 시 analysis_moved_at). 버튼 판단은 packages/shared canStartAnalysis·canReanalyze·canMoveAnalysisToMemo
+- 챗봇 '기록으로 저장'은 chat 기록(analysis_status done, 답변은 summary·summary_detail, 근거 기록은 summary_detail.sources). POST /api/records로는 chat을 만들 수 없다
 - worker 요청에는 X-Worker-Secret 헤더를 붙이고, 응답을 기다리지 않고 바로 클라이언트에 응답
 - worker 전달이 실패해도 queued로 남겨 두면 worker의 재처리가 처리한다
 
@@ -48,7 +53,7 @@ Next.js 웹. 수집 + 찾기 + 관리를 맡는다.
 - 이 기록의 요약본 벡터로 Qdrant를 검색해 유사도 0.8 이상 중 상위 3개를 링크로 보여 준다. 자기 자신 제외, user_id 필터
 - 결과는 DB에서 다시 확인해 없거나 deleting인 기록을 뺀다
 - 연결하기·삭제 버튼 없이 보기 전용. 연결(모아보기·별자리)과 별개
-- 가공이 끝나지 않아 벡터가 없는 기록은 연관 기록을 보여 주지 않는다
+- AI 분석이 없어 요약본 벡터가 없는 기록은 연관 기록(화면: 함께 볼 만한 기록)을 보여 주지 않는다
 
 # 그룹 삭제
 - 빈 그룹은 바로 지운다
