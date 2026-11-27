@@ -23,6 +23,10 @@
 
 ## PR
 - 작업 브랜치 → main으로 PR 생성, 최소 1명 승인 후 머지
-- PR 설명에 변경 내용, 변경 이유, 확인 방법을 적을 것
+- PR 설명에 변경 내용, 변경 이유, 확인 방법을 적을 것 (양식: .github/pull_request_template.md)
+- 관련 이슈는 PR 설명에 `Closes #번호`로 연결할 것. 머지되면 이슈가 닫히고 보드 Done 칸으로 이동한다
+  - 이슈 번호는 plan 승인 시 hook이 알려 준 번호, 모르면 `gh issue list --assignee @me`로 확인
+  - 같은 작업으로 이슈가 여러 개 생겼으면 모두 `Closes`로 적거나, 중복 이슈는 닫는다
+  - `gh pr create --body`로 만들면 템플릿이 적용되지 않으니 위 항목을 직접 넣을 것
 - 테이블 구조 변경은 migration, docs/database.md, apps/web 타입, apps/worker 코드를 같은 PR에 담을 것
 - CLAUDE.md와 docs/ 수정은 팀 합의 후 PR로만 반영
