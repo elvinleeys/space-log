@@ -34,3 +34,19 @@
 - 웹 구글 로그인·첫 로그인 기본 그룹·데스크톱 로그인 콜백 (B2)
 - 데스크톱 담당에게 POST /api/records 요청·응답 형식(packages/shared create-record.ts) 공유
 - 팀원 안내: develop 받은 뒤 npx supabase migration up
+
+## 2026-11-28
+
+### 오늘 한 일
+- 디자인 싱크 반영: 'AI 분석하기' 버튼 방식(저장 시 글자 추출·색인만 자동, AI 정리글은 버튼·챗봇 요청 때만), 기록 상세 AI 분석 영역(다시 분석·메모에 옮기기·지우기), 챗봇 분석 요청·기록으로 저장(chat)·AI 추천·FAQ 명세와 분석 상태 칸 migration PR 생성 (#48)
+
+### 막힌 곳
+- PR #48 머지 대기 → docs·CLAUDE.md·packages/shared·migrations 변경이라 팀 합의와 데스크톱 담당 확인 필요 → 해결: 머지됨 (#48)
+- PRD 5번 '저장하면 요약'과 버튼 방식이 다름 → PRD 작성자 확인 필요 (docs/open-questions.md)
+- 데스크톱 말풍선 '받았어요! 정리하고 있어요'(screens/01)가 버튼 방식과 안 맞음 → 데스크톱 담당 문구 조정 필요
+- 가공 후 그룹 추천 처리 위치(가공 서버/웹 서버), 분석 결과 기다리는 방식, 챗봇 FAQ 문구·AI 추천 결과 위치 미정 → 팀 결정 필요
+
+### 다음 할 일
+- AI 분석 API 구현: POST·DELETE /api/records/{id}/analysis, 메모 자동 저장 PATCH /api/records/{id} (명세: f04·f07, apps/web/CLAUDE.md)
+- 업로드 완료 알림 API (dev-b-web.md B3 남은 항목)
+- 팀원 안내: PR #48 머지 후 npx supabase migration up
