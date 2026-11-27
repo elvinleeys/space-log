@@ -1,6 +1,6 @@
 ---
 name: daily
-description: 하루 마무리 기록을 한 번에 남긴다. /readme(완료한 기능), /log(작업·문제 해결), /handoff(인수인계), /prompt(보낸 prompt)를 순서대로 모두 실행한다. "/daily", "오늘 기록 전부 남겨줘", "하루 마무리 기록해줘" 같은 요청에 사용.
+description: 하루 마무리 기록을 한 번에 남긴다. /readme(완료한 기능), /log(AI 위임 기록), /handoff(인수인계), /prompt(보낸 prompt)를 순서대로 모두 실행한다. "/daily", "오늘 기록 전부 남겨줘", "하루 마무리 기록해줘" 같은 요청에 사용.
 ---
 
 # 하루 마무리 기록 (4개 스킬 한 번에)
