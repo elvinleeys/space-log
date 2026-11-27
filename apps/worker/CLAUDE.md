@@ -39,12 +39,13 @@ FastAPI 가공 서버. 업로드된 기록에서 글자를 뽑아 요약하고 �
 - 기록 1개에서 벡터가 여러 개 나온다. 벡터 식별값을 기록 식별값과 같게 쓰지 말 것
 - payload 필수: user_id, record_id, group_id, vector_kind(summary 또는 chunk). chunk는 chunk_index도 저장
 - group_id는 Qdrant에 저장하기 직전에 DB에서 현재 값을 다시 읽어 넣는다 (가공 중 그룹이 바뀌어도 옛 값이 들어가지 않게)
+- 같은 시점에 status도 다시 확인한다. deleting이거나 기록이 없으면 Qdrant에 저장하지 않고 가공을 멈춘다 (가공 중 삭제 대비)
 - 같은 기록을 다시 처리하면 그 record_id의 기존 벡터를 지운 뒤 새로 저장 (조각 수가 바뀔 수 있음)
 - 원문 조각 글은 payload에 넣지 않는다 (URL 원문 미저장 결정)
 - Supabase 저장이 먼저, Qdrant 저장은 그 다음. Qdrant에만 있는 데이터를 만들지 말 것
 
 # 재처리
-- 주기적으로 오래 queued 또는 processing인 기록을 찾아 다시 처리
+- 주기적으로 오래 queued 또는 processing인 기록을 찾아 다시 처리. deleting인 기록은 가공 대상에서 뺀다
 - 같은 기록을 여러 번 처리해도 결과가 같아야 한다 (멱등성)
 
 # 파일 규칙
