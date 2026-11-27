@@ -18,8 +18,10 @@ Next.js 웹. 수집 + 찾기 + 관리를 맡는다.
 # API 규칙
 - 사용자 확인은 Supabase 인증 세션 기준. 다른 사용자의 기록·그룹에 접근하지 못하게 할 것
 - 기록 생성 시 status uploading, 업로드 완료 알림 시 queued로 바꾼 뒤 worker에 가공 요청. 파일 없는 기록(memo·highlight·url·video)은 생성할 때 바로 queued로 만들고 가공 요청
-- 업로드 권한은 서명 업로드 주소(createSignedUploadUrl)로 발급. 경로는 `user_id/record_id.확장자`, 비밀키 클라이언트는 이때만 쓴다
-- 요청 검사·응답 형식은 packages/shared의 validateCreateRecordRequest와 타입을 따른다. 오류 응답: `{ error: { code, message } }` (INVALID_INPUT 400, UNAUTHORIZED 401, GROUP_NOT_FOUND 404, FILE_TOO_LARGE 413, UNSUPPORTED_FILE_TYPE 415)
+- 파일 기록은 파일(1~10개, 합계 50MB)마다 record_file 행과 서명 업로드 주소(createSignedUploadUrl)를 발급. 경로는 `user_id/record_id/file_id.확장자`, 비밀키 클라이언트는 이때만 쓴다. 발급이 하나라도 실패하면 기록을 지워 되돌린다
+- 업로드 완료 알림은 모든 파일이 Storage에 있을 때만 queued로 바꾼다
+- 요청 검사·응답 형식은 packages/shared의 validateCreateRecordRequest와 타입을 따른다. 오류 응답: `{ error: { code, message } }` (INVALID_INPUT 400, TOO_MANY_FILES 400, UNAUTHORIZED 401, GROUP_NOT_FOUND 404, FILE_TOO_LARGE 413, RECORD_TOO_LARGE 413, UNSUPPORTED_FILE_TYPE 415)
+- 화면의 기록 제목·파일 이름은 packages/shared의 displayRecordTitle·displayFileName으로 만든다 (DB에 저장하지 않음)
 - 로그인 확인: 데스크톱은 `Authorization: Bearer 토큰`, 웹은 쿠키 세션 (getAuthedClient)
 - worker 요청에는 X-Worker-Secret 헤더를 붙이고, 응답을 기다리지 않고 바로 클라이언트에 응답
 - worker 전달이 실패해도 queued로 남겨 두면 worker의 재처리가 처리한다

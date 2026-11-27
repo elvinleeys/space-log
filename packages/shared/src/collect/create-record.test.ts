@@ -1,14 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import {
   defaultTitle,
+  fileBaseName,
   fileExtension,
   validateCreateRecordRequest,
 } from './create-record';
 
 const base = { collected_from: 'desktop' } as const;
+const MB = 1024 * 1024;
+const fileRec = (files: unknown, extra: object = {}) => ({
+  ...base,
+  record_type: 'file',
+  files,
+  ...extra,
+});
 
-describe('validateCreateRecordRequest', () => {
-  it('메모: 글이 있으면 통과, 파일 형식은 null', () => {
+describe('validateCreateRecordRequest · 파일 없는 기록', () => {
+  it('메모: 글이 있으면 통과, 파일 형식은 빈 배열', () => {
     const r = validateCreateRecordRequest({
       ...base,
       record_type: 'memo',
@@ -16,7 +24,7 @@ describe('validateCreateRecordRequest', () => {
     });
     expect(r).toMatchObject({
       ok: true,
-      fileType: null,
+      fileTypes: [],
       value: { information_content: '안녕' },
     });
   });
@@ -35,7 +43,9 @@ describe('validateCreateRecordRequest', () => {
   it('URL·영상: http(s) 주소가 필요', () => {
     expect(
       validateCreateRecordRequest({ ...base, record_type: 'url' }),
-    ).toMatchObject({ ok: false });
+    ).toMatchObject({
+      ok: false,
+    });
     expect(
       validateCreateRecordRequest({
         ...base,
@@ -52,10 +62,12 @@ describe('validateCreateRecordRequest', () => {
     ).toMatchObject({ ok: true });
   });
 
-  it('형식·수집 경로가 목록에 없으면 INVALID_INPUT', () => {
+  it('형식·수집 경로가 목록에 없거나 본문이 없으면 INVALID_INPUT', () => {
     expect(
       validateCreateRecordRequest({ ...base, record_type: 'audio' }),
-    ).toMatchObject({ code: 'INVALID_INPUT' });
+    ).toMatchObject({
+      code: 'INVALID_INPUT',
+    });
     expect(
       validateCreateRecordRequest({
         record_type: 'memo',
@@ -68,85 +80,12 @@ describe('validateCreateRecordRequest', () => {
     });
   });
 
-  it('파일: 정상이면 확장자를 돌려준다 (대문자 확장자 포함)', () => {
-    const r = validateCreateRecordRequest({
-      ...base,
-      record_type: 'file',
-      file: { name: '보고서.PDF', size: 1000 },
-    });
-    expect(r).toMatchObject({ ok: true, fileType: 'pdf' });
-  });
-
-  it('파일: 10MB 초과는 FILE_TOO_LARGE, 정확히 10MB는 통과', () => {
-    const tooBig = {
-      ...base,
-      record_type: 'file',
-      file: { name: 'a.pdf', size: 10 * 1024 * 1024 + 1 },
-    };
-    expect(validateCreateRecordRequest(tooBig)).toMatchObject({
-      code: 'FILE_TOO_LARGE',
-    });
-    const max = {
-      ...base,
-      record_type: 'file',
-      file: { name: 'a.pdf', size: 10 * 1024 * 1024 },
-    };
-    expect(validateCreateRecordRequest(max)).toMatchObject({ ok: true });
-  });
-
-  it('파일: 지원하지 않는 형식·확장자 없음은 UNSUPPORTED_FILE_TYPE', () => {
-    for (const name of ['a.exe', 'README']) {
-      const r = validateCreateRecordRequest({
-        ...base,
-        record_type: 'file',
-        file: { name, size: 10 },
-      });
-      expect(r).toMatchObject({ code: 'UNSUPPORTED_FILE_TYPE' });
-    }
-  });
-
-  it('캡처는 png·jpg·jpeg만', () => {
-    const pdf = {
-      ...base,
-      record_type: 'capture',
-      file: { name: 'a.pdf', size: 10 },
-    };
-    expect(validateCreateRecordRequest(pdf)).toMatchObject({
-      code: 'UNSUPPORTED_FILE_TYPE',
-    });
-    const png = {
-      ...base,
-      record_type: 'capture',
-      file: { name: 'a.png', size: 10 },
-    };
-    expect(validateCreateRecordRequest(png)).toMatchObject({
-      ok: true,
-      fileType: 'png',
-    });
-  });
-
-  it('파일 정보가 없거나 크기가 이상하면 INVALID_INPUT', () => {
-    for (const file of [
-      undefined,
-      { name: 'a.pdf' },
-      { name: 'a.pdf', size: 0 },
-      { name: 'a.pdf', size: 1.5 },
-    ]) {
-      const r = validateCreateRecordRequest({
-        ...base,
-        record_type: 'file',
-        file,
-      });
-      expect(r).toMatchObject({ code: 'INVALID_INPUT' });
-    }
-  });
-
-  it('파일 없는 기록에 파일을 보내면 INVALID_INPUT', () => {
+  it('파일 없는 기록에 files를 보내면 INVALID_INPUT', () => {
     const r = validateCreateRecordRequest({
       ...base,
       record_type: 'memo',
       information_content: 'a',
-      file: { name: 'a.pdf', size: 1 },
+      files: [{ name: 'a.pdf', size: 1 }],
     });
     expect(r).toMatchObject({ code: 'INVALID_INPUT' });
   });
@@ -162,8 +101,124 @@ describe('validateCreateRecordRequest', () => {
   });
 });
 
-describe('defaultTitle', () => {
-  it('직접 쓴 제목 > 파일 이름 > 글 첫 줄 > 주소 순', () => {
+describe('validateCreateRecordRequest · 파일 기록', () => {
+  it('여러 파일: 넣은 순서대로 확장자를 돌려준다 (대문자 확장자 포함)', () => {
+    const r = validateCreateRecordRequest(
+      fileRec([
+        { name: '보고서.PDF', size: 1000 },
+        { name: '표.png', size: 10 },
+      ]),
+    );
+    expect(r).toMatchObject({ ok: true, fileTypes: ['pdf', 'png'] });
+  });
+
+  it('파일 기록에 메모 글도 함께 넣을 수 있다', () => {
+    const r = validateCreateRecordRequest(
+      fileRec([{ name: 'a.pdf', size: 1 }], {
+        information_content: '같이 적은 메모',
+      }),
+    );
+    expect(r).toMatchObject({
+      ok: true,
+      value: { information_content: '같이 적은 메모' },
+    });
+  });
+
+  it('파일이 없거나 빈 배열이면 INVALID_INPUT', () => {
+    for (const files of [undefined, [], { name: 'a.pdf', size: 1 }]) {
+      expect(validateCreateRecordRequest(fileRec(files))).toMatchObject({
+        code: 'INVALID_INPUT',
+      });
+    }
+  });
+
+  it('10개까지 통과, 11개는 TOO_MANY_FILES', () => {
+    const many = (n: number) =>
+      Array.from({ length: n }, (_, i) => ({ name: `${i}.png`, size: 1 }));
+    expect(validateCreateRecordRequest(fileRec(many(10)))).toMatchObject({
+      ok: true,
+    });
+    expect(validateCreateRecordRequest(fileRec(many(11)))).toMatchObject({
+      code: 'TOO_MANY_FILES',
+    });
+  });
+
+  it('파일 하나가 10MB 초과면 FILE_TOO_LARGE, 정확히 10MB는 통과', () => {
+    expect(
+      validateCreateRecordRequest(
+        fileRec([{ name: 'a.pdf', size: 10 * MB + 1 }]),
+      ),
+    ).toMatchObject({ code: 'FILE_TOO_LARGE' });
+    expect(
+      validateCreateRecordRequest(fileRec([{ name: 'a.pdf', size: 10 * MB }])),
+    ).toMatchObject({
+      ok: true,
+    });
+  });
+
+  it('합계 50MB까지 통과, 넘으면 RECORD_TOO_LARGE', () => {
+    const files = (n: number) =>
+      Array.from({ length: n }, (_, i) => ({
+        name: `${i}.pdf`,
+        size: 10 * MB,
+      }));
+    expect(validateCreateRecordRequest(fileRec(files(5)))).toMatchObject({
+      ok: true,
+    });
+    expect(
+      validateCreateRecordRequest(
+        fileRec([...files(5), { name: 'x.txt', size: 1 }]),
+      ),
+    ).toMatchObject({ code: 'RECORD_TOO_LARGE' });
+  });
+
+  it('지원하지 않는 형식·확장자 없음은 UNSUPPORTED_FILE_TYPE', () => {
+    for (const name of ['a.exe', 'README']) {
+      expect(
+        validateCreateRecordRequest(fileRec([{ name, size: 10 }])),
+      ).toMatchObject({
+        code: 'UNSUPPORTED_FILE_TYPE',
+      });
+    }
+  });
+
+  it('캡처는 여러 장 가능, png·jpg·jpeg만', () => {
+    const cap = (files: unknown) => ({
+      ...base,
+      record_type: 'capture',
+      files,
+    });
+    expect(
+      validateCreateRecordRequest(
+        cap([
+          { name: 'a.png', size: 1 },
+          { name: 'b.jpg', size: 1 },
+        ]),
+      ),
+    ).toMatchObject({ ok: true, fileTypes: ['png', 'jpg'] });
+    expect(
+      validateCreateRecordRequest(cap([{ name: 'a.pdf', size: 1 }])),
+    ).toMatchObject({
+      code: 'UNSUPPORTED_FILE_TYPE',
+    });
+  });
+
+  it('파일 이름·크기가 이상하면 INVALID_INPUT', () => {
+    for (const f of [
+      { name: '', size: 1 },
+      { name: 'a.pdf' },
+      { name: 'a.pdf', size: 0 },
+      { name: 'a.pdf', size: 1.5 },
+    ]) {
+      expect(validateCreateRecordRequest(fileRec([f]))).toMatchObject({
+        code: 'INVALID_INPUT',
+      });
+    }
+  });
+});
+
+describe('defaultTitle (DB에 저장할 제목)', () => {
+  it('직접 쓴 제목이 있으면 그대로', () => {
     expect(
       defaultTitle({
         ...base,
@@ -172,13 +227,19 @@ describe('defaultTitle', () => {
         information_content: '본문',
       }),
     ).toBe('제목');
+  });
+
+  it('파일 기록은 빈 제목을 저장하지 않는다 (화면에서 첫 파일 이름으로 보여 줌)', () => {
     expect(
       defaultTitle({
         ...base,
         record_type: 'file',
-        file: { name: 'a.pdf', size: 1 },
+        files: [{ name: '보고서.pdf', size: 1 }],
       }),
-    ).toBe('a.pdf');
+    ).toBeUndefined();
+  });
+
+  it('메모는 첫 줄(100자까지), 링크는 주소', () => {
     expect(
       defaultTitle({
         ...base,
@@ -189,27 +250,29 @@ describe('defaultTitle', () => {
     expect(
       defaultTitle({
         ...base,
+        record_type: 'memo',
+        information_content: 'a'.repeat(150),
+      }),
+    ).toHaveLength(100);
+    expect(
+      defaultTitle({
+        ...base,
         record_type: 'url',
         source_url: 'https://a.com',
       }),
     ).toBe('https://a.com');
   });
-
-  it('첫 줄은 100자로 자른다', () => {
-    expect(
-      defaultTitle({
-        ...base,
-        record_type: 'memo',
-        information_content: 'a'.repeat(150),
-      }),
-    ).toHaveLength(100);
-  });
 });
 
-describe('fileExtension', () => {
+describe('fileExtension · fileBaseName', () => {
   it('확장자를 소문자로, 없거나 점으로 시작하면 빈 값', () => {
     expect(fileExtension('A.B.PNG')).toBe('png');
     expect(fileExtension('noext')).toBe('');
     expect(fileExtension('.env')).toBe('');
+  });
+
+  it('확장자를 뺀 이름', () => {
+    expect(fileBaseName('우주기록 시안.v2.pdf')).toBe('우주기록 시안.v2');
+    expect(fileBaseName('noext')).toBe('noext');
   });
 });

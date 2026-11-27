@@ -1,5 +1,6 @@
 // POST /api/records — 기록 생성 (수집 흐름 1단계)
-// 파일 기록(file·capture): uploading으로 만들고 서명 업로드 주소를 돌려준다. 업로드 후 완료 알림 API로 queued가 된다
+// 파일 기록(file·capture): uploading으로 만들고 파일(1~10개)마다 서명 업로드 주소를 돌려준다.
+//   모든 파일이 올라간 뒤 완료 알림 API로 queued가 된다
 // 파일 없는 기록(memo·highlight·url·video): 바로 queued로 만들고 가공 서버에 요청한다
 import {
   API_ERROR_STATUS,
@@ -11,6 +12,8 @@ import {
   type ApiErrorCode,
   type CreateRecordResponse,
   type InformationRecord,
+  type RecordFile,
+  type RecordFileUpload,
 } from '@space-log/shared';
 import {
   RECORDS_BUCKET,
@@ -52,9 +55,6 @@ export async function POST(request: Request) {
 
   const hasFile = FILE_RECORD_TYPES.includes(req.record_type);
   const recordId = crypto.randomUUID();
-  const filePath = hasFile
-    ? `${user.id}/${recordId}.${checked.fileType}`
-    : null;
 
   const { data: record, error: insertError } = await supabase
     .from('information_record')
@@ -67,9 +67,6 @@ export async function POST(request: Request) {
       information_content: req.information_content ?? null,
       source_url: req.source_url ?? null,
       original_context: req.original_context ?? null,
-      file_path: filePath,
-      file_type: checked.fileType,
-      file_size: req.file?.size ?? null,
       status: hasFile ? 'uploading' : 'queued',
       collected_from: req.collected_from,
     })
@@ -77,37 +74,69 @@ export async function POST(request: Request) {
     .single<InformationRecord>();
   if (insertError) return internalError('기록 생성', insertError);
 
-  if (!filePath) {
+  if (!hasFile) {
     requestProcessing(recordId);
     return Response.json(
-      { record, upload: null } satisfies CreateRecordResponse,
+      { record, files: [], uploads: [] } satisfies CreateRecordResponse,
       { status: 201 },
     );
   }
 
-  // 정해진 경로에만 올릴 수 있는 일회용 주소. 버킷에도 10MB·형식 제한이 걸려 있다
-  const { data: signed, error: signError } = await createAdminClient()
-    .storage.from(RECORDS_BUCKET)
-    .createSignedUploadUrl(filePath);
-  if (signError || !signed) {
-    // 업로드할 수 없는 기록이 uploading으로 남지 않게 지운다
-    await supabase
-      .from('information_record')
-      .delete()
-      .eq('record_id', recordId);
-    return internalError('업로드 주소 발급', signError);
+  // 업로드할 수 없는 기록이 uploading으로 남지 않게 지운다 (record_file은 함께 지워짐)
+  const rollback = () =>
+    supabase.from('information_record').delete().eq('record_id', recordId);
+
+  // 파일마다 행을 만든다. 넣은 순서가 화면 번호(position)가 된다
+  const fileRows = req.files!.map((f, i) => {
+    const fileId = crypto.randomUUID();
+    const fileType = checked.fileTypes[i];
+    return {
+      file_id: fileId,
+      record_id: recordId,
+      owner_id: user.id,
+      position: i + 1,
+      original_name: f.name,
+      file_path: `${user.id}/${recordId}/${fileId}.${fileType}`,
+      file_type: fileType,
+      file_size: f.size,
+    };
+  });
+  const { data: files, error: filesError } = await supabase
+    .from('record_file')
+    .insert(fileRows)
+    .select()
+    .order('position')
+    .returns<RecordFile[]>();
+  if (filesError || !files) {
+    await rollback();
+    return internalError('파일 정보 저장', filesError);
   }
 
+  // 정해진 경로에만 올릴 수 있는 일회용 주소. 버킷에도 10MB·형식 제한이 걸려 있다
+  const storage = createAdminClient().storage.from(RECORDS_BUCKET);
+  const signedList = await Promise.all(
+    files.map((f) => storage.createSignedUploadUrl(f.file_path)),
+  );
+  const failed = signedList.find((s) => s.error || !s.data);
+  if (failed) {
+    await rollback();
+    return internalError('업로드 주소 발급', failed.error);
+  }
+
+  const uploads: RecordFileUpload[] = files.map((f, i) => {
+    const signed = signedList[i].data!;
+    return {
+      file_id: f.file_id,
+      position: f.position,
+      path: signed.path,
+      token: signed.token,
+      signedUrl: signed.signedUrl,
+      contentType: SUPPORTED_FILE_TYPES[f.file_type],
+    };
+  });
+
   return Response.json(
-    {
-      record,
-      upload: {
-        path: signed.path,
-        token: signed.token,
-        signedUrl: signed.signedUrl,
-        contentType: SUPPORTED_FILE_TYPES[checked.fileType!],
-      },
-    } satisfies CreateRecordResponse,
+    { record, files, uploads } satisfies CreateRecordResponse,
     { status: 201 },
   );
 }
