@@ -1,6 +1,9 @@
 // PostToolUse(Bash|PowerShell): Claude가 git pull/fetch 한 뒤, 원격에서 지워진(PR 머지 후 자동 삭제된) 로컬 브랜치를 정리한다.
 // git branch -d(안전 삭제)만 사용: 현재 브랜치에 합쳐지지 않은 브랜치는 지우지 않는다.
+// main(배포)·develop(개발 통합)은 원격 상태와 상관없이 절대 지우지 않는다.
 import { execFileSync } from 'node:child_process';
+
+const PROTECTED = new Set(['main', 'develop']);
 
 let raw = '';
 process.stdin.on('data', (c) => (raw += c));
@@ -45,7 +48,10 @@ process.stdin.on('end', () => {
   )
     .split('\n')
     .map((l) => l.split('|'))
-    .filter(([name, track]) => name && track === '[gone]' && name !== current)
+    .filter(
+      ([name, track]) =>
+        name && track === '[gone]' && name !== current && !PROTECTED.has(name),
+    )
     .map(([name]) => name);
 
   const deleted = [];
