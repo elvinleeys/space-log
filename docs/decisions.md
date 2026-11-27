@@ -47,3 +47,12 @@
 | 2026-11-27 | 기록 삭제는 DB, Qdrant, Storage에서 모두 지운다. 순서: 확인 창 → status deleting → Qdrant → Storage → DB(재발견 메모·연결은 CASCADE). 실패 시 deleting으로 남겨 다시 시도 | 세 곳을 한 번에 지울 수 없어, DB를 기준으로 남겨야 무엇을 마저 지울지 알 수 있음. 남은 벡터로 지운 기록이 챗봇에 나오는 것을 막음 |
 | 2026-11-27 | 처리 상태에 deleting 추가 (여섯 개). 가공 서버는 Qdrant 저장 직전 status를 확인해 deleting이면 멈춘다 | 삭제 중 표시를 별도 칸 대신 status로 통일. 가공 중 삭제 시 벡터가 다시 생기는 것을 막음 |
 | 2026-11-27 | 기록 상세 지우기, 그룹 '기록까지 모두 삭제', 블랙홀 지우기는 같은 삭제 절차를 쓴다. 삭제 전 확인 창을 띄우고 휴지통은 두지 않는다 | 절차를 하나로 유지, 실수 삭제 방지 |
+| 2026-11-27 | 사용자 테이블 이름을 user에서 app_user로 변경 | user는 Postgres 예약어라 따옴표를 빠뜨리면 현재 DB 계정을 가리키는 버그가 생김. record_group과 같은 이유 |
+| 2026-11-27 | 기록 생성 API(POST /api/records): 파일 없는 기록(memo·highlight·url·video)은 생성 즉시 queued + 가공 요청, 파일 기록(file·capture)은 uploading + 서명 업로드 주소 발급 | 파일 없는 기록은 올릴 것이 없어 완료 알림 요청을 줄임 |
+| 2026-11-27 | record_type에 video를 따로 둔다 (memo, highlight, url, video, file, capture) | 가공 서버(자막·본문)와 목록 필터가 바로 구분 |
+| 2026-11-27 | 파일 업로드는 웹 API가 발급한 서명 업로드 주소로만, 경로는 user_id/record_id.확장자, 비공개 버킷 records에 10MB·지원 형식 제한 | 클라이언트에 비밀값 없이 정해진 경로에만 업로드. 서버·Storage 양쪽에서 검사 |
+| 2026-11-27 | 기록 생성 시 그룹을 안 보내면 '분류 안 된 기록', 남의 그룹이나 없는 그룹이면 404로 거절. DB도 복합 외래 키로 막음 | 잘못 저장되는 것보다 오류를 드러내는 편이 버그를 찾기 쉬움 |
+| 2026-11-27 | 빈 제목은 서버가 채운다 (메모 첫 줄 100자, 파일 이름, 주소) | 데스크톱·웹·MCP 어디서 넣어도 규칙이 같음 |
+| 2026-11-27 | 웹 API 로그인 확인은 Bearer 토큰(데스크톱)과 쿠키 세션(웹)을 모두 받는다. 오류 응답은 { error: { code, message } } | 한 API를 두 앱이 함께 쓰고, 앱은 code로 안내 문구를 고름 |
+| 2026-11-27 | Supabase SDK import 규칙 예외: apps/web 서버 코드는 src/lib/supabase/server.ts 한 곳에서만 import | 비밀키·쿠키 세션 코드는 브라우저·데스크톱에서도 import되는 packages/shared에 둘 수 없음 |
+| 2026-11-27 | 가공 서버 요청은 POST {WORKER_URL}/process, 본문 { record_id } (잠정). WORKER_URL이 없거나 실패하면 queued로 남김 | 가공 서버 요청 모델이 정해지면 맞춘다 |
