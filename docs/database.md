@@ -2,11 +2,13 @@
 
 예시값은 화면 확인용으로 지어낸 값이다. 모든 테이블에는 만든 시각(created_at)이 들어가며 표에서는 생략했다.
 
+실제 테이블은 supabase/migrations가 기준이다. 식별값(user_id, group_id, record_id)은 uuid, 정보 기록의 group_id는 (group_id, owner_id) 복합 외래 키로 같은 주인의 그룹만 참조한다. 파일은 비공개 버킷 `records`(10MB, 지원 형식만)에 저장한다.
+
 ## 구성도 (Supabase DB)
 
 ```mermaid
 erDiagram
-  user["사용자"] {
+  app_user["사용자"] {
     text user_id "사용자 식별값, 필수"
     text display_name "표시 이름"
     text avatar_url "프로필 사진"
@@ -51,18 +53,20 @@ erDiagram
     ref user_id "사용자, 필수"
     int reminder_period "리마인드 기간"
   }
-  user ||--o{ record_group : "만든다"
-  user ||--o{ information_record : "기록한다"
+  app_user ||--o{ record_group : "만든다"
+  app_user ||--o{ information_record : "기록한다"
   record_group ||--o{ information_record : "담는다"
   information_record ||--o{ rediscovery_note : "덧붙인다"
   information_record ||--o{ information_link : "연결을 시작한다"
   information_record ||--o{ information_link : "연결 대상이 된다"
-  user ||--o| user_settings : "설정한다"
+  app_user ||--o| user_settings : "설정한다"
 ```
 
 그룹 테이블 이름은 SQL 예약어 group과 겹치지 않게 record_group으로 한다.
 
-## 사용자 (user)
+## 사용자 (app_user)
+테이블 이름은 Postgres 예약어 user를 피해 app_user로 한다 (그룹의 record_group과 같은 이유).
+
 구글 로그인(Supabase 인증)한 사용자를 구분한다.
 
 | 필드 | 타입 | 필수 | 설명 | 예시값 |
@@ -103,11 +107,11 @@ erDiagram
 | owner_id | 참조 | 필수 | 기록한 사용자 | user_001 |
 | group_id | 참조 | 필수 | 속한 그룹. 처음엔 AI 추천 그룹, 없으면 '분류 안 된 기록' | group_001 |
 | suggested_group_id | 참조 | 선택 | AI가 추천한 그룹. 사용자가 바꿔도 남긴다 | group_002 |
-| record_type | 글자 | 필수 | 메모, 하이라이트, URL, 파일, 캡처 [확인 필요: 영상 링크를 따로 구분할지] | url |
+| record_type | 글자 | 필수 | memo(메모), highlight(하이라이트), url, video(영상 링크), file(파일), capture(캡처) | url |
 | title | 글자 | 선택 | 비우면 메모 첫 줄이나 파일 이름 | 프롬프트 작성 가이드 |
 | information_content | 글자 | 선택 | 직접 쓴 메모 글이나 하이라이트 문장 | 맥락, 형식, 판단 기준을 함께 준다 |
 | source_url | 글자 | 선택 | URL·영상 링크의 원문, 하이라이트 출처 페이지 | https://example.com/guide |
-| file_path | 글자 | 선택 | Supabase Storage 파일 위치 | user_001/record_001.pdf |
+| file_path | 글자 | 선택 | Supabase Storage `records` 버킷 안 위치. 규칙: `user_id/record_id.확장자` | user_001/record_001.pdf |
 | file_type | 글자 | 선택 | 파일 형식 | pdf |
 | file_size | 숫자 | 선택 | 파일 크기 (10MB 이하) | 640KB |
 | original_context | 글자 | 선택 | 저장할 때 남긴 맥락이나 이유 | 직무교육 실습 중 저장 |
@@ -117,8 +121,8 @@ erDiagram
 | error_message | 글자 | 선택 | 가공 실패 이유 | 원문을 가져오지 못함 |
 | collected_from | 글자 | 필수 | desktop, web, mcp | desktop |
 | embedding_model | 글자 | 선택 | 벡터를 만든 모델. Qdrant 재생성 때 확인 | embedding-v1 |
-| is_favorite | 참/거짓 | 선택 | [확인 필요: MVP 포함 여부] | 참 |
-| last_viewed_at | 날짜 | 선택 | P1. 블랙홀 기준이 '마지막으로 본 날'이면 필요 | 2026-11-26 |
+| is_favorite | 참/거짓 | 선택 | [확인 필요: MVP 포함 여부] 아직 migration에 없음 | 참 |
+| last_viewed_at | 날짜 | 선택 | P1. 블랙홀 기준이 '마지막으로 본 날'이면 필요. 아직 migration에 없음 | 2026-11-26 |
 
 넣은 날은 만든 시각이며 기간 필터의 기준이다.
 

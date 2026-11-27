@@ -29,7 +29,7 @@ npm workspaces 모노레포. workspaces는 ["apps/desktop", "apps/web", "package
 - main·develop에 직접 커밋·푸시 금지. 작업 브랜치는 develop에서 만들고 develop으로 PR
 
 # 수집 흐름 (데스크톱·웹 공통)
-1. 클라이언트 → apps/web API: 기록 생성 요청, 업로드 권한 받음 (status: uploading)
+1. 클라이언트 → apps/web API: 기록 생성 요청, 업로드 권한 받음 (status: uploading). 파일 없는 기록(메모·하이라이트·URL·영상 링크)은 바로 queued가 되고 4단계로 간다
 2. 클라이언트 → Supabase Storage: 파일 직접 업로드 (메모·하이라이트·URL·영상 링크는 생략)
 3. 클라이언트 → apps/web API: 업로드 완료 알림 (status: queued)
 4. apps/web → apps/worker: 가공 요청 전달 후 즉시 응답
@@ -41,7 +41,7 @@ npm workspaces 모노레포. workspaces는 ["apps/desktop", "apps/web", "package
 - 출처 링크(source_url)가 있는 파일은 가공 성공(done) 후 Storage 원본을 지우고 출처 링크로 본다. 출처 링크가 없는 파일(내 컴퓨터에서 올린 파일, 화면 캡처)은 원본을 유지한다. 가공에 실패한 파일은 지우지 않는다
 - URL·영상 링크의 원문 글은 저장하지 않는다 (원문 링크만 저장)
 - 지원 파일: csv, txt, md, jpeg, jpg, png, svg, HTML, PDF. 파일 1개 10MB까지
-- TS 코드의 Supabase SDK는 packages/shared 안에서만 import. Qdrant SDK는 키가 필요하므로 apps/web 서버 코드에서만 import
+- TS 코드의 Supabase SDK는 packages/shared 안에서만 import. 예외: apps/web 서버 코드는 apps/web/src/lib/supabase/server.ts 한 곳에서만 import (비밀키·쿠키 세션 때문). Qdrant SDK는 키가 필요하므로 apps/web 서버 코드에서만 import
 - API 키·비밀값은 서버(apps/web 서버 코드, apps/worker)의 환경변수에만. 데스크톱 앱·브라우저 코드에 넣지 말 것
 - 테이블 구조를 바꾸면 migration, docs/database.md, apps/web 타입, apps/worker 코드를 함께 수정
 

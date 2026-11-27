@@ -2,3 +2,6 @@ node_modules/
 .env*
 !.env.example
 CLAUDE.local.md
+.next/
+next-env.d.ts
+*.tsbuildinfo
