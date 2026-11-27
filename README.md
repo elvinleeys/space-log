@@ -21,4 +21,4 @@
 | 자동 포맷 | PostToolUse (Write·Edit) | `format.mjs` | 코드 파일 수정 시 Prettier → ESLint `--fix`, 못 고친 오류는 Claude가 바로 수정 |
 | 머지된 브랜치 정리 | PostToolUse (Bash·PowerShell) | `prune-merged-branches.mjs` | `git pull·fetch` 후 원격에서 지워진 로컬 브랜치를 안전 삭제(`-d`)만 |
 | 계획 승인 시 이슈 생성 | PostToolUse (ExitPlanMode) | `plan-issue.mjs` | 계획 제목·본문으로 이슈 생성, 담당자 본인, 보드 In progress 칸 (설정법: `issue_적용방법.md`) |
-| 세션 시작 안내 | SessionStart | `session-status.mjs` | 현재 브랜치, 나에게 할당된 이슈, main보다 뒤처진 커밋 수 표시 |
+| 세션 시작 안내 | SessionStart | `session-status.mjs` | 현재 브랜치, 나에게 할당된 이슈, develop보다 뒤처진 커밋 수 표시 |

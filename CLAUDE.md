@@ -26,7 +26,7 @@ npm workspaces 모노레포. workspaces는 ["apps/desktop", "apps/web", "package
 
 # Git 작업
 - 브랜치 생성, 커밋, PR 작업 전 docs/git.md를 읽고 따를 것
-- main에 직접 커밋·푸시 금지
+- main·develop에 직접 커밋·푸시 금지. 작업 브랜치는 develop에서 만들고 develop으로 PR
 
 # 수집 흐름 (데스크톱·웹 공통)
 1. 클라이언트 → apps/web API: 기록 생성 요청, 업로드 권한 받음 (status: uploading)

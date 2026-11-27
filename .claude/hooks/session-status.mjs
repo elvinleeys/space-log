@@ -1,4 +1,4 @@
-// SessionStart: 세션 시작 시 현재 브랜치, 나에게 할당된 열린 이슈, main보다 뒤처진 커밋 수를 알려준다.
+// SessionStart: 세션 시작 시 현재 브랜치, 나에게 할당된 열린 이슈, develop(개발 통합 브랜치)보다 뒤처진 커밋 수를 알려준다.
 // 네트워크·gh 미설치 등으로 실패한 항목은 건너뛰고 나머지만 보여준다.
 import { execFileSync } from 'node:child_process';
 
@@ -22,7 +22,7 @@ if (branch === null) process.exit(0); // git 저장소가 아니면 조용히 �
 lines.push(`현재 브랜치: ${branch || '(detached HEAD)'}`);
 
 const fetched = run('git', ['fetch', '--quiet', 'origin'], 15000) !== null;
-for (const base of ['main']) {
+for (const base of ['develop']) {
   const behind = run('git', ['rev-list', '--count', `HEAD..origin/${base}`]);
   if (behind === null) continue; // 원격에 해당 브랜치가 없으면 생략
   lines.push(
