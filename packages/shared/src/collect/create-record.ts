@@ -5,45 +5,63 @@ import {
   COLLECTED_FROM,
   FILE_RECORD_TYPES,
   MAX_FILE_SIZE,
+  MAX_FILES_PER_RECORD,
+  MAX_RECORD_TOTAL_SIZE,
   RECORD_TYPES,
   SUPPORTED_FILE_TYPES,
   type CollectedFrom,
   type InformationRecord,
+  type RecordFile,
   type RecordType,
   type SupportedFileType,
 } from '../types/record';
 
+export interface CreateRecordFileInput {
+  name: string;
+  size: number;
+}
+
 export interface CreateRecordRequest {
   record_type: RecordType;
   collected_from: CollectedFrom;
+  /** 비우면 첫 파일 이름(확장자 제외), 메모 첫 줄, 주소 순으로 채운다 */
   title?: string;
+  /** 메모·하이라이트 글. 파일 기록에도 함께 적을 수 있다 */
   information_content?: string;
   source_url?: string;
   original_context?: string;
   /** 비우면 '분류 안 된 기록' */
   group_id?: string;
-  /** file·capture일 때만 */
-  file?: { name: string; size: number };
+  /** file·capture일 때만. 1~10개, 넣은 순서가 화면 번호가 된다 */
+  files?: CreateRecordFileInput[];
+}
+
+export interface RecordFileUpload {
+  file_id: string;
+  position: number;
+  path: string;
+  token: string;
+  /** 이 주소로 파일을 PUT하면 된다. 일정 시간 뒤 만료 */
+  signedUrl: string;
+  /** 업로드할 때 보낼 Content-Type (버킷이 이 형식만 받는다) */
+  contentType: string;
 }
 
 export interface CreateRecordResponse {
   record: InformationRecord;
-  /** file·capture일 때 서명 업로드 정보. 나머지는 null */
-  upload: {
-    path: string;
-    token: string;
-    /** 이 주소로 파일을 PUT하면 된다. 일정 시간 뒤 만료 */
-    signedUrl: string;
-    /** 업로드할 때 보낼 Content-Type (버킷이 이 형식만 받는다) */
-    contentType: string;
-  } | null;
+  /** 파일 없는 기록이면 빈 배열 */
+  files: RecordFile[];
+  /** files와 같은 순서. 파일 없는 기록이면 빈 배열 */
+  uploads: RecordFileUpload[];
 }
 
 export type ApiErrorCode =
   | 'INVALID_INPUT'
   | 'UNAUTHORIZED'
   | 'GROUP_NOT_FOUND'
+  | 'TOO_MANY_FILES'
   | 'FILE_TOO_LARGE'
+  | 'RECORD_TOO_LARGE'
   | 'UNSUPPORTED_FILE_TYPE'
   | 'INTERNAL_ERROR';
 
@@ -55,13 +73,15 @@ export const API_ERROR_STATUS: Record<ApiErrorCode, number> = {
   INVALID_INPUT: 400,
   UNAUTHORIZED: 401,
   GROUP_NOT_FOUND: 404,
+  TOO_MANY_FILES: 400,
   FILE_TOO_LARGE: 413,
+  RECORD_TOO_LARGE: 413,
   UNSUPPORTED_FILE_TYPE: 415,
   INTERNAL_ERROR: 500,
 };
 
 export type ValidationResult =
-  | { ok: true; value: CreateRecordRequest; fileType: SupportedFileType | null }
+  | { ok: true; value: CreateRecordRequest; fileTypes: SupportedFileType[] }
   | { ok: false; code: ApiErrorCode; message: string };
 
 const fail = (code: ApiErrorCode, message: string): ValidationResult => ({
@@ -86,11 +106,18 @@ const isHttpUrl = (v: string): boolean => {
 };
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MB = 1024 * 1024;
 
 /** 파일 이름에서 소문자 확장자를 꺼낸다. 없으면 '' */
 export const fileExtension = (name: string): string => {
   const dot = name.lastIndexOf('.');
   return dot <= 0 ? '' : name.slice(dot + 1).toLowerCase();
+};
+
+/** 파일 이름에서 확장자를 뺀다 */
+export const fileBaseName = (name: string): string => {
+  const dot = name.lastIndexOf('.');
+  return dot <= 0 ? name : name.slice(0, dot);
 };
 
 export function validateCreateRecordRequest(input: unknown): ValidationResult {
@@ -143,58 +170,91 @@ export function validateCreateRecordRequest(input: unknown): ValidationResult {
   }
 
   if (!FILE_RECORD_TYPES.includes(value.record_type)) {
-    if (body.file !== undefined)
+    if (body.files !== undefined)
       return fail(
         'INVALID_INPUT',
         '파일은 file·capture 기록에만 보낼 수 있어요',
       );
-    return { ok: true, value, fileType: null };
+    return { ok: true, value, fileTypes: [] };
   }
 
-  const file = body.file as { name?: unknown; size?: unknown } | undefined;
-  if (
-    typeof file !== 'object' ||
-    file === null ||
-    typeof file.name !== 'string' ||
-    file.name.trim() === ''
-  ) {
-    return fail('INVALID_INPUT', '파일 정보(file.name, file.size)가 필요해요');
-  }
-  if (
-    typeof file.size !== 'number' ||
-    !Number.isInteger(file.size) ||
-    file.size <= 0
-  ) {
+  const files = body.files;
+  if (!Array.isArray(files) || files.length === 0) {
     return fail(
       'INVALID_INPUT',
-      '파일 크기(file.size)는 1 이상의 정수여야 해요',
+      '파일 정보(files: [{ name, size }])가 필요해요',
     );
   }
-  if (file.size > MAX_FILE_SIZE)
-    return fail('FILE_TOO_LARGE', '파일은 10MB까지 올릴 수 있어요');
+  if (files.length > MAX_FILES_PER_RECORD) {
+    return fail(
+      'TOO_MANY_FILES',
+      `파일은 한 번에 ${MAX_FILES_PER_RECORD}개까지 넣을 수 있어요`,
+    );
+  }
 
-  const ext = fileExtension(file.name);
   const allowed: readonly string[] =
     value.record_type === 'capture'
       ? CAPTURE_FILE_TYPES
       : Object.keys(SUPPORTED_FILE_TYPES);
-  if (!allowed.includes(ext)) {
+  const cleaned: CreateRecordFileInput[] = [];
+  const fileTypes: SupportedFileType[] = [];
+  let total = 0;
+
+  for (const f of files as { name?: unknown; size?: unknown }[]) {
+    if (
+      typeof f !== 'object' ||
+      f === null ||
+      typeof f.name !== 'string' ||
+      f.name.trim() === ''
+    ) {
+      return fail('INVALID_INPUT', '파일마다 이름(name)이 필요해요');
+    }
+    const name = f.name.trim();
+    if (
+      typeof f.size !== 'number' ||
+      !Number.isInteger(f.size) ||
+      f.size <= 0
+    ) {
+      return fail(
+        'INVALID_INPUT',
+        `${name}: 크기(size)는 1 이상의 정수여야 해요`,
+      );
+    }
+    if (f.size > MAX_FILE_SIZE)
+      return fail('FILE_TOO_LARGE', `${name}: 파일은 10MB까지 올릴 수 있어요`);
+    const ext = fileExtension(name);
+    if (!allowed.includes(ext)) {
+      return fail(
+        'UNSUPPORTED_FILE_TYPE',
+        `${name}: 지원하는 형식은 ${allowed.join(', ')}예요`,
+      );
+    }
+    total += f.size;
+    cleaned.push({ name, size: f.size });
+    fileTypes.push(ext as SupportedFileType);
+  }
+
+  if (total > MAX_RECORD_TOTAL_SIZE) {
     return fail(
-      'UNSUPPORTED_FILE_TYPE',
-      `지원하는 형식: ${allowed.join(', ')}`,
+      'RECORD_TOO_LARGE',
+      `파일 합계는 ${MAX_RECORD_TOTAL_SIZE / MB}MB까지 올릴 수 있어요`,
     );
   }
 
-  value.file = { name: file.name.trim(), size: file.size };
-  return { ok: true, value, fileType: ext as SupportedFileType };
+  value.files = cleaned;
+  return { ok: true, value, fileTypes };
 }
 
 const TITLE_MAX = 100; // shortcut: 자동 제목 길이 100자는 임의값, 화면 확정 시 조정
 
-/** 제목을 비워 보냈을 때 채울 값: 메모·하이라이트는 첫 줄, 파일은 파일 이름, 링크는 주소 */
+/**
+ * DB에 저장할 제목. 비워 보내면 메모·하이라이트는 첫 줄, 링크는 주소로 채운다.
+ * 파일 기록은 빈 제목을 저장하지 않는다: 저장하면 파일 이름이 '제목1, 제목2'로 바뀌기 때문.
+ * 파일 기록의 화면 제목은 displayRecordTitle로 첫 파일 이름을 보여 준다.
+ */
 export function defaultTitle(req: CreateRecordRequest): string | undefined {
   if (req.title) return req.title;
-  if (req.file) return req.file.name;
+  if (req.files?.length) return undefined;
   if (req.information_content)
     return req.information_content.split(/\r?\n/)[0].trim().slice(0, TITLE_MAX);
   return req.source_url;

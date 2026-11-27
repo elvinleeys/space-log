@@ -26,6 +26,12 @@ export type CollectedFrom = (typeof COLLECTED_FROM)[number];
 /** 파일 1개 최대 크기: 10MB */
 export const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
+/** 기록 1개에 붙일 수 있는 파일 수 */
+export const MAX_FILES_PER_RECORD = 10;
+
+/** 기록 1개의 파일 합계 최대 크기: 50MB */
+export const MAX_RECORD_TOTAL_SIZE = 50 * 1024 * 1024;
+
 /** 지원 파일 확장자 → Storage에 올릴 때 쓰는 Content-Type */
 export const SUPPORTED_FILE_TYPES = {
   csv: 'text/csv',
@@ -69,9 +75,6 @@ export interface InformationRecord {
   title: string | null;
   information_content: string | null;
   source_url: string | null;
-  file_path: string | null;
-  file_type: string | null;
-  file_size: number | null;
   original_context: string | null;
   summary: string | null;
   summary_detail: Record<string, unknown> | null;
@@ -80,4 +83,45 @@ export interface InformationRecord {
   collected_from: CollectedFrom;
   embedding_model: string | null;
   created_at: string;
+}
+
+/** 기록에 붙은 파일 1개 (기록 1개에 0~10개) */
+export interface RecordFile {
+  file_id: string;
+  record_id: string;
+  owner_id: string;
+  /** 사용자가 넣은 순서 (1부터). 화면 이름 번호 */
+  position: number;
+  original_name: string;
+  file_path: string;
+  file_type: SupportedFileType;
+  file_size: number;
+  created_at: string;
+}
+
+/** 화면에 보일 기록 제목. 제목이 비어 있는 파일 기록은 첫 파일 이름(확장자 제외) */
+export function displayRecordTitle(
+  title: string | null | undefined,
+  files: Pick<RecordFile, 'position' | 'original_name'>[],
+): string {
+  const t = title?.trim();
+  if (t) return t;
+  const first = [...files].sort((a, b) => a.position - b.position)[0];
+  if (!first) return '';
+  const dot = first.original_name.lastIndexOf('.');
+  return dot <= 0 ? first.original_name : first.original_name.slice(0, dot);
+}
+
+/**
+ * 화면에 보일 파일 이름.
+ * 제목이 있으면 '제목' (파일 1개) 또는 '제목1', '제목2'… (여러 개), 제목이 없으면 각 파일의 원래 이름.
+ */
+export function displayFileName(
+  title: string | null | undefined,
+  file: Pick<RecordFile, 'position' | 'original_name'>,
+  totalFiles: number,
+): string {
+  const t = title?.trim();
+  if (!t) return file.original_name;
+  return totalFiles === 1 ? t : `${t}${file.position}`;
 }

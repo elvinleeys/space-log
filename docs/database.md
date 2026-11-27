@@ -2,7 +2,7 @@
 
 예시값은 화면 확인용으로 지어낸 값이다. 모든 테이블에는 만든 시각(created_at)이 들어가며 표에서는 생략했다.
 
-실제 테이블은 supabase/migrations가 기준이다. 식별값(user_id, group_id, record_id)은 uuid, 정보 기록의 group_id는 (group_id, owner_id) 복합 외래 키로 같은 주인의 그룹만 참조한다. 파일은 비공개 버킷 `records`(10MB, 지원 형식만)에 저장한다.
+실제 테이블은 supabase/migrations가 기준이다. 식별값(user_id, group_id, record_id)은 uuid, 정보 기록의 group_id는 (group_id, owner_id) 복합 외래 키로 같은 주인의 그룹만 참조한다. 파일은 비공개 버킷 `records`(10MB, 지원 형식만)에 저장하고, 파일 정보는 record_file 테이블에 둔다 (기록 1개에 0~10개).
 
 ## 구성도 (Supabase DB)
 
@@ -31,12 +31,18 @@ erDiagram
     text title "제목"
     text information_content "정보 내용"
     text source_url "원문 주소"
-    text file_path "Storage 파일 경로"
     text original_context "원래 맥락"
     text summary "요약본"
     json summary_detail "AI 정리글 양식"
     text status "처리 상태, 필수"
     text collected_from "수집 경로, 필수"
+  }
+  record_file["기록 파일"] {
+    text file_id "파일 식별값, 필수"
+    ref record_id "속한 정보 기록, 필수"
+    int position "넣은 순서, 필수"
+    text original_name "원래 파일 이름, 필수"
+    text file_path "Storage 파일 경로, 필수"
   }
   rediscovery_note["재발견 메모 (잠정)"] {
     text note_id "재발견 메모 식별값, 필수"
@@ -56,6 +62,7 @@ erDiagram
   app_user ||--o{ record_group : "만든다"
   app_user ||--o{ information_record : "기록한다"
   record_group ||--o{ information_record : "담는다"
+  information_record ||--o{ record_file : "파일을 담는다"
   information_record ||--o{ rediscovery_note : "덧붙인다"
   information_record ||--o{ information_link : "연결을 시작한다"
   information_record ||--o{ information_link : "연결 대상이 된다"
@@ -99,7 +106,9 @@ erDiagram
 삭제: 빈 그룹은 바로 삭제. 기록이 있으면 '다른 그룹으로 옮기고 삭제' 또는 '기록까지 모두 삭제'를 사용자가 고른다.
 
 ## 정보 기록 (information_record)
-사용자가 저장한 정보 하나. 정보 내용과 원래 맥락은 선택이다.
+사용자가 저장한 정보 하나. 정보 내용과 원래 맥락은 선택이다. 파일 정보는 아래 record_file에 둔다.
+
+제목(title)을 비우면 메모·하이라이트는 첫 줄, URL·영상은 주소로 채워 저장한다. 파일 기록은 빈 제목을 저장하지 않고, 화면에서 첫 파일 이름(확장자 제외)을 보여 준다 (packages/shared `displayRecordTitle`). 저장하면 파일 이름이 '제목1, 제목2'로 바뀌기 때문이다.
 
 | 필드 | 타입 | 필수 | 설명 | 예시값 |
 | --- | --- | --- | --- | --- |
@@ -111,9 +120,6 @@ erDiagram
 | title | 글자 | 선택 | 비우면 메모 첫 줄이나 파일 이름 | 프롬프트 작성 가이드 |
 | information_content | 글자 | 선택 | 직접 쓴 메모 글이나 하이라이트 문장 | 맥락, 형식, 판단 기준을 함께 준다 |
 | source_url | 글자 | 선택 | URL·영상 링크의 원문, 하이라이트 출처 페이지 | https://example.com/guide |
-| file_path | 글자 | 선택 | Supabase Storage `records` 버킷 안 위치. 규칙: `user_id/record_id.확장자` | user_001/record_001.pdf |
-| file_type | 글자 | 선택 | 파일 형식 | pdf |
-| file_size | 숫자 | 선택 | 파일 크기 (10MB 이하) | 640KB |
 | original_context | 글자 | 선택 | 저장할 때 남긴 맥락이나 이유 | 직무교육 실습 중 저장 |
 | summary | 글자 | 선택 | 화면과 챗봇이 바로 쓰는 글. AI 정리글의 한 줄 요약 + 핵심 포인트. 하이라이트는 만들지 않음 [확인 필요: 메모도 요약할지] | AI에게 맥락, 형식, 판단 기준을 함께 줘야 한다 |
 | summary_detail | JSON | 선택 | AI 정리글 전체 (아래 'AI 정리글 양식') | (아래 예시) |
@@ -125,6 +131,24 @@ erDiagram
 | last_viewed_at | 날짜 | 선택 | P1. 블랙홀 기준이 '마지막으로 본 날'이면 필요. 아직 migration에 없음 | 2026-11-26 |
 
 넣은 날은 만든 시각이며 기간 필터의 기준이다.
+
+## 기록 파일 (record_file)
+정보 기록에 붙은 파일 하나. 기록 1개에 0~10개, 파일 1개 10MB·기록 합계 50MB까지. 기록을 지우면 함께 지워진다.
+
+| 필드 | 타입 | 필수 | 설명 | 예시값 |
+| --- | --- | --- | --- | --- |
+| file_id | 글자 | 필수 | 파일 식별값 | file_001 |
+| record_id | 참조 | 필수 | 속한 정보 기록. (record_id, owner_id) 복합 외래 키로 같은 주인의 기록만 | record_001 |
+| owner_id | 참조 | 필수 | 올린 사용자 | user_001 |
+| position | 숫자 | 필수 | 사용자가 넣은 순서 1~10. 화면 이름 번호 | 2 |
+| original_name | 글자 | 필수 | 올린 파일 이름. 이미지를 줄여 올리면 확장자가 .jpg로 바뀐 이름 | 우주기록 시안.png |
+| file_path | 글자 | 필수 | Storage `records` 버킷 안 위치 `user_id/record_id/file_id.확장자` | user_001/record_001/file_001.png |
+| file_type | 글자 | 필수 | 확장자 | png |
+| file_size | 숫자 | 필수 | 크기 (10MB 이하) | 640KB |
+
+화면 이름 (packages/shared `displayFileName`, 저장하지 않음):
+- 기록 제목이 있으면 파일 1개는 '제목', 여러 개는 '제목1', '제목2'… (번호는 position, 붙여 쓰기). 예) '우주기록 시안' + 10개 → '우주기록 시안1' … '우주기록 시안10'
+- 기록 제목이 비어 있으면 각 파일의 원래 이름
 
 ## AI 정리글 양식
 가공 서버가 URL, 파일, 영상 링크 기록을 이 양식으로 정리해 summary_detail에 저장한다. 하이라이트는 정리하지 않는다. "무슨 내용인가"보다 "언제 다시 쓸까"를 떠올리게 하는 것이 목적이다.
@@ -221,8 +245,10 @@ erDiagram
 
 ## Supabase Storage
 - 출처 링크(source_url)가 있는 파일은 가공 성공(done) 후 Storage 원본을 지우고 출처 링크로 본다. 출처 링크가 없는 파일(내 컴퓨터에서 올린 파일, 화면 캡처)은 원본을 유지한다. 가공에 실패한 파일은 지우지 않는다
-- [확인 필요: 삭제 후 file_path를 비울지, 삭제 시각을 따로 남길지]
-- 지원 형식: csv, txt, md, jpeg, jpg, png, svg, HTML, PDF. 파일 1개 10MB까지
+- [확인 필요: 삭제 후 record_file.file_path를 비울지, 삭제 시각을 따로 남길지]
+- 지원 형식: csv, txt, md, jpeg, jpg, png, svg, HTML, PDF. 파일 1개 10MB까지, 기록 1개에 파일 10개·합계 50MB까지
+- 경로: `user_id/record_id/file_id.확장자` (record_file 이전에 만든 파일은 `user_id/record_id.확장자`)
+- 10MB가 넘는 jpg·png는 올리기 전에 클라이언트가 줄인다: 긴 변 4096px 이하, JPEG로 다시 압축(품질 0.9→0.5 단계). 원본은 사용자 컴퓨터에 남는다. PDF·글 파일은 줄이지 않고 거절
 - 메모·하이라이트·URL·영상 링크 기록은 Storage를 쓰지 않는다
 - [확인 필요: 파일 경로 규칙]
 - [확인 필요: 파일을 보여 주는 방식. 공개 주소, 기한이 있는 서명 주소]
@@ -251,5 +277,5 @@ erDiagram
 ## 관계
 - 사용자 1명 → 그룹 여러 개, 정보 기록 여러 개
 - 그룹 1개 → 정보 기록 여러 개. 정보 기록은 그룹 하나에만 속한다
-- 정보 기록 1개 → 재발견 메모 여러 개, 정보 연결 여러 개, Storage 파일 0~1개, Qdrant 벡터 여러 개
+- 정보 기록 1개 → 재발견 메모 여러 개, 정보 연결 여러 개, 기록 파일(record_file) 0~10개, Qdrant 벡터 여러 개
 - 사용자 1명 → 사용자 설정 0~1개 (P1)
