@@ -38,7 +38,7 @@
 - 커밋 전 npm run lint, npm run test 통과 확인
 
 ## PR
-- 작업 브랜치 → develop으로 PR 생성, 최소 1명 승인 후 머지
+- 작업 브랜치 → develop으로 PR 생성. 리뷰 승인 없이 팀원 누구나 머지할 수 있다 (리뷰가 필요하면 PR에서 요청)
 - PR 설명에 변경 내용, 변경 이유, 확인 방법을 적을 것 (양식: .github/pull_request_template.md)
 - 관련 이슈는 PR 설명에 `Closes #번호`로 연결할 것. 기본 브랜치(develop)에 머지되면 이슈가 닫히고 보드 Done 칸으로 이동한다
   - 이슈 번호는 plan 승인 시 hook이 알려 준 번호, 모르면 `gh issue list --assignee @me`로 확인
