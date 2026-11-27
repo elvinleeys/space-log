@@ -33,6 +33,17 @@
         ]
       },
       {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/plan-issue.mjs\"",
+            "timeout": 60,
+            "statusMessage": "GitHub 이슈 생성 중"
+          }
+        ]
+      },
+      {
         "matcher": "Write|Edit|MultiEdit",
         "hooks": [
           {
