@@ -2,6 +2,8 @@
 // 파일 기록(file·capture): uploading으로 만들고 파일(1~10개)마다 서명 업로드 주소를 돌려준다.
 //   모든 파일이 올라간 뒤 완료 알림 API로 queued가 된다
 // 파일 없는 기록(memo·highlight·url·video): 바로 queued로 만들고 가공 서버에 요청한다
+// 여기서 요청하는 가공은 글자 추출·원문 조각 벡터(검색 색인)까지다.
+// AI 분석(AI 정리글)은 저장 때 하지 않고 'AI 분석하기' 버튼·챗봇 요청으로만 한다 (analysis_status는 none으로 시작)
 import {
   API_ERROR_STATUS,
   FILE_RECORD_TYPES,

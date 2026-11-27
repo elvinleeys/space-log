@@ -112,16 +112,42 @@ describe('validateCreateRecordRequest · 파일 기록', () => {
     expect(r).toMatchObject({ ok: true, fileTypes: ['pdf', 'png'] });
   });
 
-  it('파일 기록에 메모 글도 함께 넣을 수 있다', () => {
+  it('파일 기록의 메모는 original_context로 받는다', () => {
     const r = validateCreateRecordRequest(
       fileRec([{ name: 'a.pdf', size: 1 }], {
-        information_content: '같이 적은 메모',
+        original_context: '같이 적은 메모',
       }),
     );
     expect(r).toMatchObject({
       ok: true,
-      value: { information_content: '같이 적은 메모' },
+      value: { original_context: '같이 적은 메모' },
     });
+  });
+
+  it('파일·URL·영상·캡처에 information_content를 보내면 INVALID_INPUT', () => {
+    expect(
+      validateCreateRecordRequest(
+        fileRec([{ name: 'a.pdf', size: 1 }], { information_content: '메모' }),
+      ),
+    ).toMatchObject({ code: 'INVALID_INPUT' });
+    expect(
+      validateCreateRecordRequest({
+        ...base,
+        record_type: 'url',
+        source_url: 'https://a.com',
+        information_content: '메모',
+      }),
+    ).toMatchObject({ code: 'INVALID_INPUT' });
+  });
+
+  it('chat 기록은 수집으로 만들 수 없다 (챗봇 기록으로 저장 전용)', () => {
+    expect(
+      validateCreateRecordRequest({
+        ...base,
+        record_type: 'chat',
+        information_content: '답변',
+      }),
+    ).toMatchObject({ code: 'INVALID_INPUT' });
   });
 
   it('파일이 없거나 빈 배열이면 INVALID_INPUT', () => {

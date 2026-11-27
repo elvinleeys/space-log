@@ -116,14 +116,18 @@ erDiagram
 | owner_id | 참조 | 필수 | 기록한 사용자 | user_001 |
 | group_id | 참조 | 필수 | 속한 그룹. 처음엔 AI 추천 그룹, 없으면 '분류 안 된 기록' | group_001 |
 | suggested_group_id | 참조 | 선택 | AI가 추천한 그룹. 사용자가 바꿔도 남긴다 | group_002 |
-| record_type | 글자 | 필수 | memo(메모), highlight(하이라이트), url, video(영상 링크), file(파일), capture(캡처) | url |
+| record_type | 글자 | 필수 | memo(메모), highlight(하이라이트), url, video(영상 링크), file(파일), capture(캡처), chat(챗봇 답변을 기록으로 저장) | url |
 | title | 글자 | 선택 | 비우면 메모 첫 줄이나 파일 이름 | 프롬프트 작성 가이드 |
-| information_content | 글자 | 선택 | 직접 쓴 메모 글이나 하이라이트 문장 | 맥락, 형식, 판단 기준을 함께 준다 |
+| information_content | 글자 | 선택 | 메모 기록의 본문, 하이라이트 문장. 다른 형식에는 쓰지 않는다 | 맥락, 형식, 판단 기준을 함께 준다 |
 | source_url | 글자 | 선택 | URL·영상 링크의 원문, 하이라이트 출처 페이지 | https://example.com/guide |
-| original_context | 글자 | 선택 | 저장할 때 남긴 맥락이나 이유 | 직무교육 실습 중 저장 |
-| summary | 글자 | 선택 | 화면과 챗봇이 바로 쓰는 글. AI 정리글의 한 줄 요약 + 핵심 포인트. 하이라이트는 만들지 않음 [확인 필요: 메모도 요약할지] | AI에게 맥락, 형식, 판단 기준을 함께 줘야 한다 |
-| summary_detail | JSON | 선택 | AI 정리글 전체 (아래 'AI 정리글 양식') | (아래 예시) |
-| status | 글자 | 필수 | uploading, queued, processing, done, failed, deleting (삭제 중) | done |
+| original_context | 글자 | 선택 | 화면의 '메모'. 저장할 때 남긴 맥락이나 이유, 기록 상세에서 고치면 자동 저장. '메모에 옮기기'로 AI 분석 핵심 내용이 덧붙기도 한다 | 직무교육 실습 중 저장 |
+| summary | 글자 | 선택 | AI 분석 결과. 한 줄 요약 + 핵심 포인트. 'AI 분석하기'·챗봇 요청 때만 만든다. 메모·하이라이트는 만들지 않음. 사용자가 고칠 수 없음 | AI에게 맥락, 형식, 판단 기준을 함께 줘야 한다 |
+| summary_detail | JSON | 선택 | AI 정리글 전체 (아래 'AI 정리글 양식'). chat 기록은 근거 기록 id를 sources에 둔다 | (아래 예시) |
+| analysis_status | 글자 | 필수 | AI 분석 상태: none(분석 전), analyzing(분석 중), done(분석 완료), failed(분석 실패). 기본값 none, chat 기록은 done | none |
+| analyzed_at | 날짜 | 선택 | 마지막 분석 시각. 화면의 'AI 분석 · 11월 27일 23:27' | 2026-11-27 23:27 |
+| analyzed_context | 글자 | 선택 | 분석할 때의 메모. 지금 메모와 다를 때만 '다시 분석'을 허용한다 | 여러개의 나비 시안 |
+| analysis_moved_at | 날짜 | 선택 | '메모에 옮기기'를 누른 시각. 같은 분석은 한 번만 옮긴다. 다시 분석하면 비운다 | 2026-11-27 23:30 |
+| status | 글자 | 필수 | 저장·자동 가공(글자 추출 + 원문 조각 벡터) 상태: uploading, queued, processing, done, failed, deleting (삭제 중). AI 분석 상태는 analysis_status | done |
 | error_message | 글자 | 선택 | 가공 실패 이유 | 원문을 가져오지 못함 |
 | collected_from | 글자 | 필수 | desktop, web, mcp | desktop |
 | embedding_model | 글자 | 선택 | 벡터를 만든 모델. Qdrant 재생성 때 확인 | embedding-v1 |
@@ -151,7 +155,7 @@ erDiagram
 - 기록 제목이 비어 있으면 각 파일의 원래 이름
 
 ## AI 정리글 양식
-가공 서버가 URL, 파일, 영상 링크 기록을 이 양식으로 정리해 summary_detail에 저장한다. 하이라이트는 정리하지 않는다. "무슨 내용인가"보다 "언제 다시 쓸까"를 떠올리게 하는 것이 목적이다.
+사용자가 'AI 분석하기'(다시 분석)를 누르거나 챗봇으로 기록 분석을 요청하면 가공 서버가 URL, 파일, 캡처, 영상 링크 기록을 이 양식으로 정리해 summary_detail에 저장한다 (저장 때 자동으로 만들지 않는다). 메모·하이라이트는 정리하지 않는다. 기록 상세에는 한 줄 요약, 핵심 포인트(최대 3개), 함께 볼 만한 기록(연관 기록)만 보이고 나머지 항목은 저장만 한다. "무슨 내용인가"보다 "언제 다시 쓸까"를 떠올리게 하는 것이 목적이다.
 
 **공통 항목**
 

@@ -2,7 +2,7 @@
 Spacelog: 흩어진 기록을 한곳에 쉽게 저장하고, 필요할 때 쉽게 찾게 해 주는 개인 기록 서비스
 - 데스크톱 앱(apps/desktop): 수집 전용
 - 웹(apps/web): 수집 + 찾기(우주·목록·검색·AI 챗봇) + 그룹·설정 관리
-- 가공 서버(apps/worker): 글자 추출, AI 요약, 임베딩
+- 가공 서버(apps/worker): 글자 추출, 임베딩(자동), AI 요약('AI 분석하기'·챗봇 요청 때만)
 
 # 구조
 npm workspaces 모노레포. workspaces는 ["apps/desktop", "apps/web", "packages/*"]로 명시 (apps/worker는 Python이라 제외)
@@ -33,7 +33,8 @@ npm workspaces 모노레포. workspaces는 ["apps/desktop", "apps/web", "package
 2. 클라이언트 → Supabase Storage: 파일 직접 업로드 (메모·하이라이트·URL·영상 링크는 생략)
 3. 클라이언트 → apps/web API: 업로드 완료 알림 (status: queued)
 4. apps/web → apps/worker: 가공 요청 전달 후 즉시 응답
-5. apps/worker: 가공 후 status를 done 또는 failed로 변경
+5. apps/worker: 글자 추출 + 원문 조각 벡터 후 status를 done 또는 failed로 변경 (AI 요약은 하지 않음)
+- AI 분석(AI 정리글)은 저장 흐름과 별개. 기록 상세의 'AI 분석하기'·챗봇 요청 → apps/web API → apps/worker (analysis_status: none → analyzing → done/failed)
 - 1~3단계는 packages/shared의 수집 함수만 사용. 앱마다 업로드 코드를 따로 작성하지 말 것
 
 # 데이터 원칙

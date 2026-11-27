@@ -7,8 +7,42 @@ export const RECORD_TYPES = [
   'video',
   'file',
   'capture',
+  'chat',
 ] as const;
 export type RecordType = (typeof RECORD_TYPES)[number];
+
+/** 수집(POST /api/records)으로 만들 수 있는 형식. chat은 챗봇 '기록으로 저장'으로만 만든다 */
+export const COLLECTABLE_RECORD_TYPES: readonly RecordType[] = [
+  'memo',
+  'highlight',
+  'url',
+  'video',
+  'file',
+  'capture',
+];
+
+/** 본문(information_content)을 쓰는 형식. 나머지 형식의 화면 '메모'는 original_context */
+export const CONTENT_RECORD_TYPES: readonly RecordType[] = [
+  'memo',
+  'highlight',
+];
+
+/** 'AI 분석하기' 버튼이 보이는 형식 */
+export const ANALYZABLE_RECORD_TYPES: readonly RecordType[] = [
+  'url',
+  'video',
+  'file',
+  'capture',
+];
+
+/** AI 분석 상태. status(저장·색인)와 따로 관리한다 */
+export const ANALYSIS_STATUSES = [
+  'none',
+  'analyzing',
+  'done',
+  'failed',
+] as const;
+export type AnalysisStatus = (typeof ANALYSIS_STATUSES)[number];
 
 export const RECORD_STATUSES = [
   'uploading',
@@ -73,12 +107,23 @@ export interface InformationRecord {
   suggested_group_id: string | null;
   record_type: RecordType;
   title: string | null;
+  /** memo·highlight 본문만 */
   information_content: string | null;
   source_url: string | null;
+  /** 화면의 '메모' (memo·highlight는 저장 이유) */
   original_context: string | null;
+  /** AI 분석 결과: 한 줄 요약 + 핵심 내용 */
   summary: string | null;
+  /** AI 분석 결과 전체 (docs/database.md 'AI 정리글 양식') */
   summary_detail: Record<string, unknown> | null;
+  /** 저장·색인(글자 추출 + 원문 조각 벡터) 상태 */
   status: RecordStatus;
+  analysis_status: AnalysisStatus;
+  analyzed_at: string | null;
+  /** 분석할 때의 메모. 지금 메모와 다를 때만 '다시 분석' 가능 */
+  analyzed_context: string | null;
+  /** '메모에 옮기기'를 누른 시각. 같은 분석은 한 번만 옮긴다 */
+  analysis_moved_at: string | null;
   error_message: string | null;
   collected_from: CollectedFrom;
   embedding_model: string | null;

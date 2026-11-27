@@ -24,11 +24,19 @@ FastAPI 가공 서버. 업로드된 기록에서 글자를 뽑아 요약하고 �
    - URL: 원문을 가져와 글자 추출 (원문 글은 저장하지 않음)
    - 영상 링크(유튜브 등): 자막 또는 음성을 글로 변환
    - 하이라이트: 요약하지 않고 선택 문장 그대로
-5. AI API로 AI 정리글 생성 (양식: docs/database.md 'AI 정리글 양식'). 전체는 summary_detail, 한 줄 요약 + 핵심 포인트는 summary에 저장
-6. 요약본 벡터 1개(one_line + key_points + use_when을 합친 글) + 원문 조각 벡터 여러 개를 만들어 Qdrant에 저장
-7. Supabase에 요약본, embedding_model 저장
+5. 원문 조각 벡터 여러 개를 만들어 Qdrant에 저장 (AI 정리글은 만들지 않음)
+6. '분류 안 된 기록'이면 뽑은 글자·파일 이름·메모로 그룹을 추천해 suggested_group_id에 저장 [확인 필요: 처리 위치. 가공 서버에서 할지 웹 서버에서 할지 (docs/open-questions.md)]
+7. Supabase에 embedding_model 저장
 8. status를 done으로. 실패 시 failed + error_message 저장
 9. done이고 source_url이 있는 파일 기록이면 Storage 원본 삭제
+
+# AI 분석 흐름 ('AI 분석하기'·다시 분석·챗봇 요청 때만)
+1. apps/web에서 분석 요청 수신 (X-Worker-Secret). analysis_status는 웹 서버가 analyzing으로 바꿔 둔다
+2. 글자를 다시 읽는다: Storage 원본, 원본이 지워진 출처 링크 파일·URL·영상은 원문을 다시 가져옴 (원문 글은 저장하지 않음)
+3. 파일 여러 개 + 메모(original_context)를 합쳐 AI 정리글 1개 생성 (양식: docs/database.md). 전체는 summary_detail, 한 줄 요약 + 핵심 포인트는 summary
+4. 요약본 벡터 1개(one_line + key_points + use_when)를 기존 요약본 벡터를 지운 뒤 Qdrant에 저장
+5. summary·summary_detail·analyzed_at, analyzed_context(분석 때 메모) 저장, analysis_moved_at 비움, analysis_status done. 실패 시 failed
+- 저장 직전 status가 deleting이거나 기록이 없으면 멈춘다
 
 # FastAPI 규칙
 - 요청·응답 형식은 Pydantic 모델로 선언한다. 웹 서버와의 약속이므로 바꾸면 apps/web의 호출 코드도 같은 PR에서 수정
