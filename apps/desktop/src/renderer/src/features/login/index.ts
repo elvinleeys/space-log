@@ -34,5 +34,7 @@ export function useSession(): Session {
     setStatus('loggedOut');
   }, []);
 
-  return { status, error, login, cancel: ipc.cancelLogin, logout };
+  // cancel은 호출 시점에 브릿지를 읽도록 감싼다
+  const cancel = useCallback(() => ipc.cancelLogin(), []);
+  return { status, error, login, cancel, logout };
 }
