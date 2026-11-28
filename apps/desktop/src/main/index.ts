@@ -5,7 +5,7 @@ import { cancelLogin, login } from './auth/login';
 import { clearTokens, loadTokens } from './auth/token-store';
 import { captureRegion, registerCaptureIpc } from './capture';
 import { readClipboard } from './clipboard';
-import { pickFile } from './files';
+import { pickFile, readPickedFile } from './files';
 import {
   applyLayout,
   createCharacterWindow,
@@ -36,6 +36,7 @@ app.whenReady().then(() => {
   ipcMain.handle(IPC.clipboardRead, () => readClipboard());
   ipcMain.handle(IPC.captureStart, () => captureRegion(win, preload, loadPage));
   ipcMain.handle(IPC.filePick, () => pickFile());
+  ipcMain.handle(IPC.fileRead, (_e, path: string) => readPickedFile(path));
   ipcMain.on(IPC.webOpen, () => shell.openExternal(WEB_URL));
   ipcMain.on(IPC.appQuit, () => app.quit());
   ipcMain.on(IPC.windowResize, (e, layout: WindowLayout) => {

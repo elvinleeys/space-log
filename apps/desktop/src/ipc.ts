@@ -10,6 +10,7 @@ export const IPC = {
   captureImage: 'capture:image',
   captureSelect: 'capture:select',
   filePick: 'file:pick',
+  fileRead: 'file:read',
   webOpen: 'web:open',
   appQuit: 'app:quit',
   windowResize: 'window:resize',
@@ -71,6 +72,8 @@ export interface SpacelogBridge {
   captureSelect(rect: CaptureRect | null): void;
   /** 고른 파일들. 취소하면 빈 배열 */
   pickFile(): Promise<PickedFile[]>;
+  /** 파일선택으로 고른 파일의 내용. 고르지 않은 경로는 거절한다 */
+  readPickedFile(path: string): Promise<Uint8Array>;
   openWeb(): void;
   quit(): void;
   resizeWindow(layout: WindowLayout): void;

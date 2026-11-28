@@ -11,6 +11,7 @@ const bridge: SpacelogBridge = {
   captureImage: () => ipcRenderer.invoke(IPC.captureImage),
   captureSelect: (rect) => ipcRenderer.send(IPC.captureSelect, rect),
   pickFile: () => ipcRenderer.invoke(IPC.filePick),
+  readPickedFile: (path) => ipcRenderer.invoke(IPC.fileRead, path),
   openWeb: () => ipcRenderer.send(IPC.webOpen),
   quit: () => ipcRenderer.send(IPC.appQuit),
   resizeWindow: (layout) => ipcRenderer.send(IPC.windowResize, layout),

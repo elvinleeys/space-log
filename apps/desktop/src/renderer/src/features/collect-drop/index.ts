@@ -2,11 +2,12 @@ import {
   classifyUrl,
   validateFiles,
   type CollectResult,
+  type FileEntry,
 } from '@/entities/record';
 
 /** 캐릭터 위에 놓인 것 */
 export interface DropData {
-  files: { name: string; size: number; path?: string }[];
+  files: FileEntry[];
   uriList?: string;
   text?: string;
 }
