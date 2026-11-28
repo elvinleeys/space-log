@@ -40,8 +40,8 @@ class Recorder:
 
 def use(monkeypatch, provider: str, response, model: str | None = None) -> Recorder:
     fake = Recorder(response)
-    monkeypatch.setenv("VISION_PROVIDER", provider)
-    monkeypatch.setenv("VISION_API_KEY", "test-key")
+    monkeypatch.setenv("AI_PROVIDER", provider)
+    monkeypatch.setenv("AI_API_KEY", "test-key")
     if model:
         monkeypatch.setenv("VISION_MODEL", model)
     else:
@@ -59,27 +59,27 @@ def forbid_clients(monkeypatch):
 
 
 def test_키가_없으면_그림을_보내지_않는다(monkeypatch):
-    monkeypatch.delenv("VISION_API_KEY", raising=False)
+    monkeypatch.delenv("AI_API_KEY", raising=False)
     forbid_clients(monkeypatch)
     assert vision.describe_image(picture()) == ""
 
 
 def test_기능을_끄면_키가_있어도_그림을_보내지_않는다(monkeypatch):
-    monkeypatch.setenv("VISION_API_KEY", "test-key")
+    monkeypatch.setenv("AI_API_KEY", "test-key")
     monkeypatch.setattr(config, "IMAGE_DESCRIPTION_ENABLED", False)
     forbid_clients(monkeypatch)
     assert vision.describe_image(picture()) == ""
 
 
 def test_기본값은_켜져_있고_openai다(monkeypatch):
-    monkeypatch.delenv("VISION_PROVIDER", raising=False)
+    monkeypatch.delenv("AI_PROVIDER", raising=False)
     assert config.IMAGE_DESCRIPTION_ENABLED is True
-    assert config.vision_provider() == "openai"
+    assert config.ai_provider() == "openai"
 
 
 def test_모르는_AI_이름이면_보내지_않는다(monkeypatch):
-    monkeypatch.setenv("VISION_PROVIDER", "없는-ai")
-    monkeypatch.setenv("VISION_API_KEY", "test-key")
+    monkeypatch.setenv("AI_PROVIDER", "없는-ai")
+    monkeypatch.setenv("AI_API_KEY", "test-key")
     forbid_clients(monkeypatch)
     assert vision.describe_image(picture()) == ""
 
@@ -89,7 +89,7 @@ def test_openai로_줄인_JPEG를_보내고_설명을_받는다(monkeypatch):
     assert vision.describe_image(picture()) == TEXT
     path, call = fake.calls[0]
     assert path == "responses.create"
-    assert call["model"] == config.VISION_DEFAULT_MODELS["openai"]
+    assert call["model"] == config.AI_DEFAULT_MODELS["openai"]
     text, sent = call["input"][0]["content"]
     assert text["type"] == "input_text" and "설명" in text["text"]
     prefix = "data:image/jpeg;base64,"
@@ -140,7 +140,7 @@ def test_gemini로_JPEG를_보내고_설명을_받는다(monkeypatch):
     assert vision.describe_image(picture()) == TEXT
     path, call = fake.calls[0]
     assert path == "models.generate_content"
-    assert call["model"] == config.VISION_DEFAULT_MODELS["gemini"]
+    assert call["model"] == config.AI_DEFAULT_MODELS["gemini"]
     part, prompt = call["contents"]
     assert part.inline_data.mime_type == "image/jpeg" and "설명" in prompt
 
@@ -168,3 +168,35 @@ def test_글자가_없는_그림은_설명만_쓴다(monkeypatch):
     monkeypatch.setattr(vision, "describe_image", lambda img: "강아지 사진이다.")
     data = (FIXTURES / "text.png").read_bytes()
     assert extract_file_text("png", data) == "강아지 사진이다."
+
+
+def test_AI_회사와_키는_같이_쓰고_모델만_일마다_다르게_고른다(monkeypatch):
+    monkeypatch.setenv("AI_PROVIDER", "claude")
+    monkeypatch.setenv("AI_API_KEY", "test-key")
+    monkeypatch.setenv("VISION_MODEL", "claude-opus-5-5")
+    monkeypatch.setenv("RECOMMEND_MODEL", "claude-haiku-5-5")
+    assert config.ai_model("vision") == "claude-opus-5-5"
+    assert config.ai_model("recommend") == "claude-haiku-5-5"
+    # 그림 설명은 자기 모델로 나간다
+    fake = use_models(monkeypatch)
+    assert vision.describe_image(picture()) == TEXT
+    assert fake.calls[0][1]["model"] == "claude-opus-5-5"
+
+
+def use_models(monkeypatch) -> Recorder:
+    fake = Recorder(claude_response())
+    monkeypatch.setattr(vision, "_claude_client", lambda api_key: fake)
+    return fake
+
+
+def test_일의_모델을_비우면_그_회사의_기본_모델을_쓴다(monkeypatch):
+    monkeypatch.setenv("AI_PROVIDER", "gemini")
+    monkeypatch.delenv("VISION_MODEL", raising=False)
+    monkeypatch.delenv("RECOMMEND_MODEL", raising=False)
+    assert config.ai_model("vision") == config.AI_DEFAULT_MODELS["gemini"]
+    assert config.ai_model("recommend") == config.AI_DEFAULT_MODELS["gemini"]
+
+
+def test_모르는_일의_모델을_물으면_바로_오류다():
+    with pytest.raises(KeyError):
+        config.ai_model("없는-일")
