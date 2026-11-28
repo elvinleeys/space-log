@@ -6,6 +6,11 @@ const bridge: SpacelogBridge = {
   cancelLogin: () => ipcRenderer.send(IPC.authCancel),
   authStatus: () => ipcRenderer.invoke(IPC.authStatus),
   logout: () => ipcRenderer.invoke(IPC.authLogout),
+  onLoginRequest: (listener) => {
+    const handler = () => listener();
+    ipcRenderer.on(IPC.authRequest, handler);
+    return () => ipcRenderer.removeListener(IPC.authRequest, handler);
+  },
   readClipboard: () => ipcRenderer.invoke(IPC.clipboardRead),
   startCapture: () => ipcRenderer.invoke(IPC.captureStart),
   captureImage: () => ipcRenderer.invoke(IPC.captureImage),
