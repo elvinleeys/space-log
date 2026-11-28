@@ -112,3 +112,27 @@
 - 검증: db reset으로 migration 3개 적용, db advisors, curl(파일+메모 201·information_content 400·chat 400), Vitest 45개, lint·tsc, 옛 '자동 요약' 문구 검색, PR에 이미지 0개 확인
 - 수정: 질문 13개 답 반영, 자동 요약 vs 버튼 검토 보고 후 자동 색인 + 버튼 분석으로 정함, 가공 서버 그룹 추천 위치를 단정하지 않고 확인 필요로 되돌림, 남아 있던 개발 서버 정리
 - 배운점: 디자인 이미지는 화면만이 아니라 처리 시점(자동/버튼) 같은 서버 흐름까지 바꾸므로 먼저 흐름 차이를 표로 확인한다
+
+### develop pull·의존성 설치
+- 목표: GitHub 변경 내역을 받아오고 데스크톱·worker를 돌릴 수 있게 의존성 설치
+- 프롬프트: github 변경내역 pull 받아줘(3회), npm install 해줘, package-lock.json은 되돌려줘, worker requirements 설치해줘
+- 결과: develop을 f57d8af → b210dab로 fast-forward, 루트 npm install(51개 추가), apps/worker/.venv 생성 후 requirements.txt 설치
+- 검증: git status 확인, worker pytest 58 통과·1 실패(cp949 csv 줄바꿈 추정)·2 건너뜀, tesseract 미설치 확인
+- 수정: npm install로 생긴 package-lock.json "peer": true 삭제 16줄을 npm 버전 차이로 보고 되돌림
+- 배운점: Windows에서 받은 테스트 샘플 파일은 줄바꿈 변환으로 테스트가 깨질 수 있다
+
+### 시안 v2·화면정의서 기준 문서 정리 + AI 추천·AI 분석 결정 반영
+- 목표: 오늘 들어온 시안 v2·화면정의서와 기존 명세의 차이를 찾아, 확정 결정(AI 추천 방식, AI 분석 형식, 버튼 규칙)과 함께 기존 문서에 반영
+- 프롬프트: 수집 시 AI 그룹 추천 제외·기본 그룹 미분류·AI 분석은 요약 1줄 + 핵심 3줄·버튼 규칙을 반영해 pull 전 문서와 비교·반영하는 계획 세우기, 이후 "AI 추천은 진행하되 버튼 클릭 시 가공 서버가 파일 내용 + 메모로 기존 그룹 중 추천"으로 정정
+- 결과: Explore 에이전트로 차이 목록 작성 → f03·f04·f05·01·05·07·database.md·glossary·decisions·open-questions·CLAUDE.md·worker CLAUDE.md 수정, 화면 명세는 하위 에이전트가 03·04·06·08·09·10·11·README·tasks 정리 (#70, 머지됨)
+- 검증: docs 전체에서 `이럴 때 다시 보세요|use_when|핵심 1줄` 검색, git diff 검토
+- 수정: 처음 계획한 "AI 추천 제거"를 사용자 정정에 따라 "버튼 → 업로드·가공 후 추천"으로 바꾸고 이름 추천만 제외, 화면정의서 용어를 '한 줄 요약 · 핵심 내용 3개'로 통일
+- 배운점: 계획 단계에서 질문으로 범위를 좁혀도 실행 직전 정정이 들어오므로 plan 승인 전에 핵심 결정을 한 번 더 확인한다
+
+### 남은 확인 필요 항목 인터뷰로 결정
+- 목표: 문서에 남은 [확인 필요]를 질문·선택지로 채우기
+- 프롬프트: /find-skills로 문서 빈틈을 질문으로 채우는 스킬 찾기 → /agent-skills:interview-me "남은 확인 필요 항목 채워줘" → "1번으로 PR #70에 반영해줘"
+- 결과: grill-me(mattpocock) 등 스킬 후보 확인, interview-me로 6개 결정(함께 볼 만한 기록, 휴지통 없음, 기간 시작–종료, 챗봇 AI 추천 FAQ, 이메일 + Google 로그인, 그룹 합치기) → decisions·open-questions·02·03·04·06·08·11·f01·f03·f05·R1·화면정의서 반영. #70이 이미 머지되어 후속 PR 생성 (#75)
+- 검증: open-questions diff 확인, gh pr view로 #70 머지 상태 확인
+- 수정: 로그인은 처음 추측(Google만)이 틀려 이메일 자체 로그인 + Google 연동으로 다시 정리
+- 배운점: 반영 전 PR 상태(머지 여부)를 먼저 확인해야 브랜치를 다시 만들지 않는다

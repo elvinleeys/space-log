@@ -38,7 +38,7 @@
 
 | 파일 | 기능 | 담당 | 요구사항 |
 | --- | --- | --- | --- |
-| [F1](features/f01-login.md) | 구글 로그인 | 둘 다 | R1 |
+| [F1](features/f01-login.md) | 로그인 (이메일, Google) | 둘 다 | R1 |
 | [F2](features/f02-save-record.md) | 기록 저장 | 둘 다 | R2 |
 | [F3](features/f03-group-recommend.md) | AI 그룹 추천 | 웹 | R3 |
 | [F4](features/f04-process-index.md) | 기록 가공·색인 | 웹 (FastAPI) | R4 |

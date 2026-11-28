@@ -39,14 +39,25 @@
 
 ### 오늘 한 일
 - 디자인 싱크 반영: 'AI 분석하기' 버튼 방식(저장 시 글자 추출·색인만 자동, AI 정리글은 버튼·챗봇 요청 때만), 기록 상세 AI 분석 영역(다시 분석·메모에 옮기기·지우기), 챗봇 분석 요청·기록으로 저장(chat)·AI 추천·FAQ 명세와 분석 상태 칸 migration PR 생성 (#48)
+- develop 최신 pull, 루트 npm install(package-lock.json 차이는 되돌림), apps/worker/.venv에 requirements 설치 (pytest 58 통과·1 실패·2 건너뜀)
+- 화면 명세(screens 03·04·06·08·09·10·11, spec/README, tasks/dev-b-web)를 화면정의서 v1(시안 v2) 기준으로 정리, AI 추천(버튼 누르면 업로드·가공 후 파일 내용 + 메모로 기존 그룹 추천)·AI 정리글(한 줄 요약 + 핵심 3개)·다시 분석 조건 반영 (#70, 머지됨)
+- 남은 확인 필요 6개 결정 반영: 함께 볼 만한 기록(벡터 유사도 0.8 상위 3), 휴지통 없음(삭제 → n개 지우기), 직접 지정 기간(시작일–종료일), 챗봇 AI 추천(FAQ 질문), 로그인(이메일 + Google, 이메일 계정만 Google 연동), 그룹 합치기 (#75)
 
 ### 막힌 곳
 - PR #48 머지 대기 → docs·CLAUDE.md·packages/shared·migrations 변경이라 팀 합의와 데스크톱 담당 확인 필요 → 해결: 머지됨 (#48)
 - PRD 5번 '저장하면 요약'과 버튼 방식이 다름 → PRD 작성자 확인 필요 (docs/open-questions.md)
 - 데스크톱 말풍선 '받았어요! 정리하고 있어요'(screens/01)가 버튼 방식과 안 맞음 → 데스크톱 담당 문구 조정 필요
-- 가공 후 그룹 추천 처리 위치(가공 서버/웹 서버), 분석 결과 기다리는 방식, 챗봇 FAQ 문구·AI 추천 결과 위치 미정 → 팀 결정 필요
+- 가공 후 그룹 추천 처리 위치(가공 서버/웹 서버), 분석 결과 기다리는 방식, 챗봇 FAQ 문구·AI 추천 결과 위치 미정 → 팀 결정 필요 → 해결: 그룹 추천은 가공 서버, 챗봇 AI 추천 결과는 대화창 목록 + 빠른 분류 카드에서 수락으로 정함 (#70, #75). 분석 결과 기다리는 방식·FAQ 문구는 남음
+- worker pytest `test_엑셀에서_저장한_cp949_csv도_읽는다` 실패 → Windows git이 tests/fixtures/sample_cp949.csv 줄바꿈을 CRLF로 바꾼 것으로 추정, .gitattributes 고정 또는 테스트 수정 필요 (원인 미확인)
+- packages/shared `canReanalyze`가 '메모에 옮기기' 뒤에도 '다시 분석'을 켬 → 화면정의서 F-14 기준 코드 수정 필요 (screens/07 확인 필요에 기록)
+- 로그인 방식 변경(이메일 + Google 연동)으로 인증 메일 확인 여부, 비밀번호 찾기, 로그인 페이지 시안, 이메일 가입자 표시 이름 미정 → 팀 결정·시안 필요 (docs/open-questions.md)
+- suggested_group_id 유지 여부 → 사용자 결정 대기 (AI 추천을 쓰므로 유지 권장)
 
 ### 다음 할 일
 - AI 분석 API 구현: POST·DELETE /api/records/{id}/analysis, 메모 자동 저장 PATCH /api/records/{id} (명세: f04·f07, apps/web/CLAUDE.md)
 - 업로드 완료 알림 API (dev-b-web.md B3 남은 항목)
 - 팀원 안내: PR #48 머지 후 npx supabase migration up
+- PR #75 머지 확인 (docs/screen-definition·PRD 등 다른 담당자 영역 수정 포함이라 팀 공유)
+- 이슈 #65(단순 pull로 자동 생성된 이슈) 닫기
+- `canReanalyze` 수정: '메모에 옮기기' 때 analyzed_context도 갱신하는 방식 등 + Vitest 추가
+- AI 추천 버튼 흐름 API 설계: 저장 전 기록 생성·업로드 → 가공 서버 추천 결과를 저장 창에 돌려주는 방식 (f03, dev-b-web.md B5)
