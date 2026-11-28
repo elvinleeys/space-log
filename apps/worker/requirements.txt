@@ -7,7 +7,7 @@ pytesseract==0.3.13
 pillow==13.0.0
 youtube-transcript-api==1.2.5
 supabase==2.34.1
-# 그림 설명에 쓸 AI. 어느 것을 쓸지 정해지면 나머지 둘은 지워도 된다 (VISION_PROVIDER)
+# 그림 설명·그룹 추천·AI 분석에 쓸 AI. 어느 것을 쓸지 정해지면 나머지 둘은 지워도 된다 (AI_PROVIDER)
 openai==3.60.0
 anthropic==2.14.0
 google-genai==3.6.1

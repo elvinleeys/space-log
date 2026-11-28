@@ -26,6 +26,14 @@ class RecordFile:
     file_type: str
 
 
+@dataclass
+class Group:
+    group_id: str
+    name: str
+    # '분류 안 된 기록'이면 참
+    is_default: bool = False
+
+
 class RecordStore(Protocol):
     def get_record(self, record_id: str) -> Record | None: ...
 
@@ -42,3 +50,11 @@ class RecordStore(Protocol):
     def download(self, file_path: str) -> bytes: ...
 
     def delete_files(self, file_paths: list[str]) -> None: ...
+
+    def list_groups(self, owner_id: str) -> list[Group]:
+        """그 사용자의 그룹 전부 ('분류 안 된 기록' 포함)."""
+        ...
+
+    def set_suggested_group(self, record_id: str, group_id: str) -> None:
+        """AI가 추천한 그룹을 남긴다. 기록의 그룹(group_id)은 바꾸지 않는다."""
+        ...

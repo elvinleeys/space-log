@@ -15,6 +15,12 @@ from io import BytesIO
 from PIL import Image
 
 import config
+from ai.clients import CLAUDE_FALLBACK_MODELS
+
+# 테스트에서는 아래 _*_client를 가짜로 바꾼다
+from ai.clients import claude_client as _claude_client
+from ai.clients import gemini_client as _gemini_client
+from ai.clients import openai_client as _openai_client
 
 logger = logging.getLogger(__name__)
 
@@ -25,16 +31,6 @@ PROMPT = (
     "나중에 이 그림을 검색으로 다시 찾을 때 쓸 설명이야. "
     "그림에 보이지 않는 것은 지어내지 말고, 설명만 써 줘."
 )
-
-# 클로드 모델 중 요청이 거절됐을 때 서버가 다른 모델로 이어 주는 기능(fallbacks)을 받는 모델
-CLAUDE_FALLBACK_MODELS = {
-    "claude-fable-5-2",
-    "claude-fable-5-1",
-    "claude-opus-5-5",
-    "claude-opus-5",
-    "claude-sonnet-5-5",
-}
-
 
 def _to_jpeg(image: Image.Image) -> bytes:
     """보내는 크기와 비용을 줄이려고 긴 변을 줄이고 JPEG로 바꾼다."""
@@ -49,27 +45,6 @@ def _to_jpeg(image: Image.Image) -> bytes:
     buffer = BytesIO()
     image.save(buffer, format="JPEG", quality=85)
     return buffer.getvalue()
-
-
-# SDK는 쓰는 것만 불러온다. 테스트에서는 아래 _*_client를 가짜로 바꾼다
-
-
-def _openai_client(api_key: str):
-    from openai import OpenAI
-
-    return OpenAI(api_key=api_key, timeout=config.VISION_TIMEOUT_SECONDS, max_retries=1)
-
-
-def _claude_client(api_key: str):
-    from anthropic import Anthropic
-
-    return Anthropic(api_key=api_key, timeout=config.VISION_TIMEOUT_SECONDS, max_retries=1)
-
-
-def _gemini_client(api_key: str):
-    from google import genai
-
-    return genai.Client(api_key=api_key)
 
 
 def _describe_with_openai(jpeg: bytes, api_key: str, model: str) -> str:

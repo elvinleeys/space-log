@@ -8,7 +8,7 @@ from supabase import Client, create_client
 
 import config
 
-from .base import Record, RecordFile
+from .base import Group, Record, RecordFile
 
 RECORD_COLUMNS = (
     "record_id, owner_id, group_id, record_type, status, title, "
@@ -61,3 +61,23 @@ class SupabaseStore:
     def delete_files(self, file_paths: list[str]) -> None:
         if file_paths:
             self.client.storage.from_(config.RECORDS_BUCKET).remove(file_paths)
+
+    def list_groups(self, owner_id: str) -> list[Group]:
+        rows = (
+            self.client.table("record_group")
+            .select("group_id, name, is_default")
+            .eq("owner_id", owner_id)
+            .order("created_at")
+            .execute()
+            .data
+        )
+        return [Group(**row) for row in rows]
+
+    def set_suggested_group(self, record_id: str, group_id: str) -> None:
+        (
+            self.client.table("information_record")
+            .update({"suggested_group_id": group_id})
+            .eq("record_id", record_id)
+            .neq("status", "deleting")
+            .execute()
+        )

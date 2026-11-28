@@ -12,9 +12,13 @@ FETCH_MAX_REDIRECTS = 5
 
 # 이미지가 무엇을 담고 있는지 AI 설명을 받을지 (processors/vision.py). False면 그림 속 글자(OCR)만 쓴다
 IMAGE_DESCRIPTION_ENABLED = True
-# 그림 설명에 보내는 그림의 긴 변과 기다리는 시간
+# 그림 설명에 보내는 그림의 긴 변
 VISION_MAX_EDGE = 1536
-VISION_TIMEOUT_SECONDS = 30
+
+# AI 답을 기다리는 시간 (그림 설명, 그룹 추천, AI 분석)
+AI_TIMEOUT_SECONDS = 30
+# AI에 보내는 글자 수 상한. 넘는 부분은 보내지 않는다 (비용과 답 속도)
+RECOMMEND_MAX_CHARS = 4000
 
 # svg에서 글자가 안 나올 때 그림으로 바꿔 OCR로 읽을지. 지금은 끈다 (파일 안의 글자만 뽑는다. 그림 설명은 위 설정을 따른다)
 SVG_OCR_ENABLED = False
@@ -41,7 +45,7 @@ def store_kind() -> str:
 #   AI_PROVIDER      openai, claude, gemini 중 하나
 #   AI_API_KEY       그 회사의 키
 #   VISION_MODEL     그림 설명에 쓸 모델
-#   RECOMMEND_MODEL  그룹 추천에 쓸 모델 (추천은 아직 만들지 않았다. 만들 때 ai_model("recommend")로 읽는다)
+#   RECOMMEND_MODEL  그룹 추천에 쓸 모델 (recommend.py)
 # 일의 모델을 비워 두면 그 회사의 기본 모델을 쓴다
 AI_DEFAULT_MODELS = {
     "openai": "gpt-6.2-astra",
