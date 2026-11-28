@@ -1,6 +1,6 @@
 # 명세 목차
 
-기준 문서: Spacelog PRD (2026-11-25), 디자인 시안 A·B. 웹 화면 배치는 시안 기준이며 확정이 아니다.
+기준 문서: Spacelog PRD (2026-11-25), 화면정의서 [screen-definition-v1.md](../screen-definition/screen-definition-v1.md) (프로토타입 v2 `docs/design/spacelog-prototype-v2.html` 기준). 웹 화면이 다르면 화면정의서를 따른다.
 `[확인 필요]`는 아직 정하지 않은 내용이다. 구현 전에 사용자에게 선택지를 주고 물어본다.
 
 - 요구사항: [requirements.md](requirements.md)
@@ -11,15 +11,28 @@
 | --- | --- | --- | --- | --- | --- |
 | [01](screens/01-desktop-collector.md) | 수집 캐릭터 | 데스크톱 | 데스크톱 | P0 | R2, R3 |
 | [02](screens/02-login.md) | 로그인 | 데스크톱, 웹 | 둘 다 | P0 | R1 |
-| [03](screens/03-space.md) | 메인 우주 | 웹 | 웹 | P0 | R3, R5, R9, R10 |
-| [04](screens/04-planet-panel.md) | 행성 상세 패널 | 웹 | 웹 | P0 | R3, R5 |
+| [03](screens/03-space.md) | 홈 · List / Space | 웹 | 웹 | P0 | R3, R5, R9, R10 |
+| [04](screens/04-planet-panel.md) | 그룹 창 (Space) · 그룹 관리 | 웹 | 웹 | P0 | R3, R5 |
 | [05](screens/05-add-record.md) | 기록 넣기 | 웹 | 웹 | P0 | R2, R3 |
-| [06](screens/06-record-list.md) | 기록 목록 | 웹 | 웹 | P0 | R5 |
+| [06](screens/06-record-list.md) | 기록 목록 (List) · 일괄 동작 | 웹 | 웹 | P0 | R5 |
 | [07](screens/07-record-detail.md) | 기록 상세 및 재발견 메모 | 웹 | 웹 | P0 | R4, R5, R8 |
 | [08](screens/08-chat.md) | 물어보기 | 웹 | 웹 | P0 | R6 |
-| [09](screens/09-link.md) | 연결 · 별자리 | 웹 | 웹 | P1 | R9 |
-| [10](screens/10-blackhole.md) | 블랙홀 | 웹 | 웹 | P1 | R8, R10 |
-| [11](screens/11-settings.md) | 설정 | 웹 | 웹 | P0 | R7, R10 |
+| [09](screens/09-link.md) | 연결 · 모아보기 (보류) | 웹 | 웹 | P1 | R9 |
+| [10](screens/10-blackhole.md) | 블랙홀 (숨김) | 웹 | 웹 | P1 | R8, R10 |
+| [11](screens/11-settings.md) | 설정 · 계정 | 웹 | 웹 | P0 | R7, R10 |
+
+## 화면정의서에만 있는 기능
+
+별도 명세 파일 없이 화면정의서를 따른다.
+
+| 화면정의서 | 기능 | 관련 명세 |
+| --- | --- | --- |
+| [F-08](../screen-definition/screen-definition-v1.md#f-08-분류-안-된-기록-카드) | 빠른 분류 카드 ('분류 안 된 기록') | 04, 06 |
+| [F-15](../screen-definition/screen-definition-v1.md#f-15-함께-볼-만한-기록--돌아가기) | 돌아가기 띠 (함께 볼 만한 기록에서 넘어왔을 때) | 07 |
+| [F-21](../screen-definition/screen-definition-v1.md#f-21-긴-답-크게-보기) | 긴 답 크게 보기 | 08 |
+| [F-22](../screen-definition/screen-definition-v1.md#f-22-자주-묻는-질문) | 자주 묻는 질문 | 08 |
+| [F-23](../screen-definition/screen-definition-v1.md#f-23-챗봇-설정) | 챗봇 설정 (챗봇이 읽지 않을 그룹) | 08 |
+| [F-25](../screen-definition/screen-definition-v1.md#f-25-모바일-형식) | 모바일 형식 (상단바, 사이드바) | 03 |
 
 ## 기능
 
