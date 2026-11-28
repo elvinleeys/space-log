@@ -10,18 +10,19 @@ import {
 
 export type { RecordStatus };
 
-/** 넣을 파일 하나. path는 내 컴퓨터 파일, dataUrl은 클립보드 이미지 */
+/** 넣을 파일 하나. path는 내 컴퓨터 파일, dataUrl은 클립보드·캡처 그림, blob은 끌어다 놓은 파일이나 줄인 그림의 내용 */
 export interface FileEntry {
   name: string;
   size: number;
   path?: string;
   dataUrl?: string;
+  blob?: Blob;
 }
 
 /** 수집앱이 받아 저장 창으로 넘기는 것 */
 export type CollectItem =
   | { kind: 'file'; files: FileEntry[] }
-  | { kind: 'capture'; name: string; size: number; dataUrl: string }
+  | ({ kind: 'capture' } & FileEntry)
   | { kind: 'url'; url: string }
   | { kind: 'video'; url: string }
   | { kind: 'highlight'; text: string; sourceUrl?: string }
@@ -58,7 +59,8 @@ export function validateFiles(
   return total > MAX_RECORD_TOTAL_SIZE ? 'totalTooLarge' : 'ok';
 }
 
-const VIDEO_HOSTS = ['youtube.com', 'youtu.be', 'vimeo.com'];
+// 가공 서버(apps/worker/processors/video.py)가 자막을 가져올 수 있는 곳만 영상 링크로 본다. 나머지는 URL 기록
+const VIDEO_HOSTS = ['youtube.com', 'youtu.be'];
 
 /** 주소면 URL 기록(유튜브 등은 영상 링크), 아니면 null */
 export function classifyUrl(text: string): CollectItem | null {

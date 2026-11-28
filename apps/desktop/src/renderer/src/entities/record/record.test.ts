@@ -57,6 +57,10 @@ describe('classifyUrl', () => {
     expect(classifyUrl(url)?.kind).toBe('video');
   });
 
+  it('가공 서버가 자막을 못 가져오는 영상 사이트는 URL 기록으로 본다', () => {
+    expect(classifyUrl('https://vimeo.com/123')?.kind).toBe('url');
+  });
+
   it.each([
     '그냥 글',
     'https://a.com 뒤에 글',

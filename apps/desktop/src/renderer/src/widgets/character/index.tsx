@@ -134,6 +134,7 @@ export function Character({
         name: f.name,
         size: f.size,
         path: ipc.pathForFile(f) || undefined,
+        blob: f,
       })),
       uriList: e.dataTransfer.getData('text/uri-list'),
       text: e.dataTransfer.getData('text/plain'),

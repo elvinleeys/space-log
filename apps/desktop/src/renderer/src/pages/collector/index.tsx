@@ -5,6 +5,7 @@ import { collectFromClipboard } from '@/features/collect-clipboard';
 import { classifyDrop } from '@/features/collect-drop';
 import { collectFromFilePicker } from '@/features/pick-file';
 import { saveAndTrack } from '@/features/save-record';
+import { shrinkLargeImages } from '@/features/shrink-image';
 import { MemoInput } from '@/features/write-memo';
 import { api } from '@/shared/api';
 import { BUBBLES, type BubbleKind } from '@/shared/config';
@@ -107,7 +108,14 @@ export function CollectorPage({ onLogout }: { onLogout: () => void }) {
         onClick={() =>
           setPanel((p) => (p.type === 'none' ? { type: 'menu' } : CLOSED))
         }
-        onDropData={(data) => receive(classifyDrop(data))}
+        onDropData={async (data) =>
+          receive(
+            classifyDrop({
+              ...data,
+              files: await shrinkLargeImages(data.files),
+            }),
+          )
+        }
         onHide={() => setPanel(CLOSED)}
         onContextMenu={
           import.meta.env.DEV ? () => setPanel({ type: 'dev' }) : undefined
