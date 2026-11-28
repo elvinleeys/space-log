@@ -45,7 +45,11 @@ function clampToScreen(b: Electron.Rectangle): Electron.Rectangle {
   return { ...b, x: Math.round(x), y: Math.round(y) };
 }
 
-export function createCharacterWindow(preload: string): BrowserWindow {
+/** icon은 Windows·Linux의 창 아이콘. macOS는 창 아이콘이 없다 */
+export function createCharacterWindow(
+  preload: string,
+  icon: string,
+): BrowserWindow {
   const size = { width: 120, height: 120 };
   const area = screen.getPrimaryDisplay().workArea;
   anchor = loadAnchor() ?? {
@@ -59,6 +63,7 @@ export function createCharacterWindow(preload: string): BrowserWindow {
       y: anchor.y - size.height,
       ...size,
     }),
+    icon,
     frame: false,
     transparent: true,
     resizable: false,

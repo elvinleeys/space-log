@@ -136,3 +136,19 @@
 - 검증: open-questions diff 확인, gh pr view로 #70 머지 상태 확인
 - 수정: 로그인은 처음 추측(Google만)이 틀려 이메일 자체 로그인 + Google 연동으로 다시 정리
 - 배운점: 반영 전 PR 상태(머지 여부)를 먼저 확인해야 브랜치를 다시 만들지 않는다
+
+### 시안 v3 기준 문서 반영
+- 목표: 최신 시안 spacelog-prototype-v3.html·login-v3.html과 다른 문서를 찾아 반영
+- 프롬프트: "spacelog-prototype-v3.html이 최신 디자인 버전이니까 이를 분석해서 문서와 다른 부분을 반영 … 계획을 보고해줘"
+- 결과: Explore 에이전트가 __bundler 묶음 HTML을 풀어 v2·화면정의서·결정과 비교 → 충돌 8개를 질문으로 결정(AI 추천 기록 상세 이동, 다시 분석 10자, 기간 '전체', 표기 '핵심 1줄 + 요약 3개', 챗봇 새 창·보고서, AI 활용 꺼짐, Google 로그인 계정 연동 줄 숨김, 인증 메일 없음) → 하위 에이전트가 별도 작업 폴더에서 문서 29개 수정, apps/web/CLAUDE.md 낡은 규칙은 직접 수정 (#86)
+- 검증: 옛 표현 grep(저장 전·AI 추천' 버튼·한 줄 요약 · 핵심 내용·크게 보기·읽은 기록·연동됨), 07 diff 직접 확인
+- 수정: 오늘 앞서 정한 '저장 창 AI 추천'·'한 줄 요약 · 핵심 내용 3개'를 사용자 결정으로 되돌림, design.md는 본문 대신 메모만 추가
+- 배운점: 디자인 문서(design.md)의 [v3] 표시가 실제 코드 차이와 달라 시안 HTML을 기준으로 비교해야 한다
+
+### 웹 디자인 토큰과 글꼴
+- 목표: design.md 값을 apps/web/src/app/globals.css 공통 토큰으로 넣고, 반응형·모바일(iOS·안드로이드)·배포 시 글꼴 적용 검토
+- 프롬프트: "docs/design/design.md를 이용해 global.css에 공통으로 사용될 디자인 토큰을 반영", "반응형 웹을 고려하여 작성된 토큰인지 검토하고, 글꼴의 경우 배포할 시 적용될 것인지 검토해줘", "권장대로 고치고 PR 2개 올려줘"
+- 결과: Tailwind v4 @theme 토큰(색·그룹 색 7쌍·글자·모서리·그림자), compact 760·wide 1100 화면 폭 기준, pt-safe·pb-safe·bottom-safe-[n], viewport(viewport-fit=cover·theme-color·color-scheme), min-h-dvh, pretendard 나눠 받기 CSS (#85)
+- 검증: npm run build -w apps/web, 빌드 CSS에서 @font-face 92개·meta 태그 확인, Tailwind compile로 클래스 생성 확인, eslint, Vitest 118개 통과. 실제 기기·dev 서버 확인은 안 함
+- 수정: 처음 쓴 next/font/local은 2MB 파일을 매 페이지 미리 받고 node_modules 상대 경로가 깨지기 쉬워 나눠 받기 CSS로 교체, package-lock.json의 "peer": true 삭제는 되돌림
+- 배운점: 한글 가변 글꼴은 전체 파일이 커서 모바일에서는 글자 범위별 나눠 받기가 낫다

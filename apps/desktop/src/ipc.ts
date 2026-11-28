@@ -5,6 +5,7 @@ export const IPC = {
   authCancel: 'auth:cancel',
   authStatus: 'auth:status',
   authLogout: 'auth:logout',
+  authRequest: 'auth:request',
   clipboardRead: 'clipboard:read',
   captureStart: 'capture:start',
   captureImage: 'capture:image',
@@ -66,6 +67,8 @@ export interface SpacelogBridge {
   cancelLogin(): void;
   authStatus(): Promise<{ loggedIn: boolean }>;
   logout(): Promise<void>;
+  /** 트레이 메뉴에서 로그인을 고르면 불린다. 돌려주는 함수로 그만 듣는다 */
+  onLoginRequest(listener: () => void): () => void;
   readClipboard(): Promise<ClipboardContent>;
   startCapture(): Promise<CaptureResult>;
   captureImage(): Promise<string | null>;

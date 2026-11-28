@@ -9,7 +9,7 @@
     "noEmit": true,
     "skipLibCheck": true,
     "isolatedModules": true,
-    "types": ["node", "vite/client"],
+    "types": ["node", "vite/client", "electron-vite/node"],
     "paths": { "@/*": ["./src/renderer/src/*"] }
   },
   "include": ["src", "electron.vite.config.mts", "vitest.config.mts"]

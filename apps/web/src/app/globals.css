@@ -1,1 +1,147 @@
 @import 'tailwindcss';
+
+/*
+ * 디자인 토큰 (docs/design/design.md, 시안 v3 기준). 다크 모드만 쓴다.
+ * 사용 예: bg-panel, text-fg-muted, border-line, rounded-window, shadow-float, text-caption
+ * 떠 있는 창은 bg-float + backdrop-blur-[20px] backdrop-saturate-180 + shadow-float
+ *
+ * 반응형: 모바일 먼저 쓰고 넓은 화면은 접두어로 덮는다.
+ *   compact: 760px 이상 (그 아래는 창이 화면 가득)
+ *   wide:    1100px 이상 (그 아래는 모바일 형식: 사이드바, 상단 아이콘, 호버 없음)
+ *   xl:      1280px 이상 (Tailwind 기본. Space에서 그룹 창이 열려도 목록 창 유지)
+ * 입력칸 글자는 16px(text-body) 이상: iOS는 그보다 작은 입력칸을 누르면 화면을 확대한다
+ * hover:는 Tailwind v4에서 호버 되는 기기에서만 동작한다 (모바일 호버 없음과 일치)
+ */
+@theme {
+  /* 화면 폭 기준 (기본 sm·md·lg·xl·2xl은 그대로 둔다) */
+  --breakpoint-compact: 760px;
+  --breakpoint-wide: 1100px;
+
+  /* 글꼴: Pretendard Variable 하나 (layout.tsx에서 pretendard 패키지의 나눠 받기 CSS를 불러온다) */
+  --font-sans:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+
+  /* 바탕과 면 */
+  --color-space: #000000; /* Space 우주 바탕, List 문서 바탕 */
+  --color-float: rgba(37, 37, 39, 0.78); /* 떠 있는 창: 목록 창·기간 바·검색 */
+  --color-panel: rgb(24, 24, 26); /* 패널·상세·챗봇·기록 넣기 창 */
+  --color-panel-2: rgb(30, 30, 32);
+  --color-card: rgba(255, 255, 255, 0.04); /* 창 안 카드·행 */
+  --color-card-2: rgba(255, 255, 255, 0.05);
+  --color-preview: rgb(38, 38, 40); /* 미리보기 칸 */
+
+  /* 상태 */
+  --color-hover: rgba(255, 255, 255, 0.08); /* 호버 (행 전체 폭) */
+  --color-selected: rgba(255, 255, 255, 0.1); /* 선택된 행 */
+  --color-switch-on: #48484a; /* 선택된 스위치 칸 (List/Space, 기간) */
+  --color-secondary: rgba(255, 255, 255, 0.18); /* 보조 버튼 면 (연동하기 등) */
+  --color-secondary-hover: rgba(255, 255, 255, 0.26);
+
+  /* 강조·링크·포커스 */
+  --color-accent: #0066cc; /* 화면 공통 강조, 주 버튼, 체크박스 켜짐 */
+  --color-link: #2997ff;
+  --color-focus: #0071e3;
+
+  /* 글자 */
+  --color-fg: #ffffff;
+  --color-fg-muted: #cccccc;
+  --color-fg-disabled: #7a7a7a;
+  --color-fg-soft: rgba(255, 255, 255, 0.72); /* 텍스트 버튼 */
+  --color-fg-pending: rgba(255, 255, 255, 0.4); /* 준비중 항목 제목 */
+  --color-fg-pending-sub: rgba(255, 255, 255, 0.32); /* 준비중 항목 미리보기 */
+  --color-ink: #1d1d1f; /* 흰 버튼 위 글자 */
+
+  /* 선 */
+  --color-line: rgba(255, 255, 255, 0.08); /* 구분선 */
+  --color-line-strong: rgba(255, 255, 255, 0.12); /* 창 테두리 */
+  --color-line-control: rgba(255, 255, 255, 0.16); /* 버튼·칩 테두리 */
+  --color-checkbox: rgba(255, 255, 255, 0.32); /* 체크박스 끔 테두리 */
+
+  /* 오류·성공 */
+  --color-error: #ff9f8f; /* 오류 글자·아이콘 */
+  --color-error-surface: rgba(255, 107, 91, 0.1); /* 오류 박스 면 */
+  --color-error-line: rgba(255, 107, 91, 0.4); /* 오류 박스 테두리 */
+  --color-error-toast: #2a1a18;
+  --color-success: #30d158; /* 비밀번호 조건 충족 */
+
+  /* 그룹 색 7쌍: base(면·주 버튼) / light(다크 바탕 위 글자·점·선) */
+  --color-group-blue: #2f6fe0;
+  --color-group-blue-light: #8fb4ff;
+  --color-group-orange: #c2561f;
+  --color-group-orange-light: #ffb07a;
+  --color-group-purple: #7a4fd6;
+  --color-group-purple-light: #c4a8ff;
+  --color-group-pink: #b8327f;
+  --color-group-pink-light: #ff8fcf;
+  --color-group-green: #1f7a55;
+  --color-group-green-light: #6fdcaa;
+  --color-group-cyan: #0d7490;
+  --color-group-cyan-light: #7fe3ff;
+  --color-group-slate: #3d4456; /* 분류 안 된 기록 */
+  --color-group-slate-light: #cfd6e6;
+
+  /* 글자 크기 (크기 / 줄높이) */
+  --text-display-sm: 28px; /* 로그인 로고 SPACELOG, 좁은 화면 (text-display-sm compact:text-display) */
+  --text-display: 40px; /* 로그인 로고 SPACELOG */
+  --text-title: 28px; /* 상세 제목 */
+  --text-title--line-height: 1.2;
+  --text-logo: 21px; /* 목록 창 로고 */
+  --text-body-lg: 17px;
+  --text-body-lg--line-height: 1.5;
+  --text-body: 16px; /* 본문·입력 */
+  --text-body--line-height: 1.5;
+  --text-row: 15px; /* 목록 행 제목 (600) */
+  --text-caption: 14px; /* 캡션·버튼 */
+  --text-caption--line-height: 1.43;
+  --text-small: 13px;
+  --text-tiny: 12px;
+  --tracking-logo: 0.08em;
+
+  /* 모서리 */
+  --radius-window: 18px; /* 창·패널·큰 카드 */
+  --radius-card-lg: 14px; /* 창 안 카드·입력·미리보기 */
+  --radius-card: 12px; /* 창 안 카드, 오류 박스 */
+  --radius-row: 10px; /* 목록 행·썸네일 */
+  --radius-checkbox: 6px;
+  /* 알약(버튼·칩·탭·검색)은 rounded-full, 원(아이콘 버튼·행성·색 점)도 rounded-full */
+
+  /* 그림자 하나: 떠 있는 창·토스트에만 */
+  --shadow-float: 3px 5px 30px rgba(0, 0, 0, 0.22);
+
+  /* 움직임: 누름 scale(0.95) 200ms */
+  --ease-press: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-space);
+    color: var(--color-fg);
+    word-break: keep-all;
+    -webkit-font-smoothing: antialiased;
+    /* 누를 때 반짝이는 사각형 대신 버튼의 scale(0.95)로 눌림을 보여 준다 */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 포커스: 2px 실선을 2px 띄워서 */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}
+
+/* iPhone 노치·홈 막대 비켜 두기 (layout.tsx viewportFit: 'cover'와 함께 쓴다). 안드로이드·PC는 0 */
+@utility pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+/* 아래 고정 요소: 디자인 여백과 홈 막대 중 큰 값 (예: bottom-safe-[24px], 토스트 bottom-safe-[76px]) */
+@utility bottom-safe-* {
+  bottom: max(--value([length]), env(safe-area-inset-bottom));
+}

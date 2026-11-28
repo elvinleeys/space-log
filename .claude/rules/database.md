@@ -16,7 +16,7 @@ paths:
 - 기록의 group_id가 바뀌면 Qdrant 벡터의 group_id도 함께 갱신한다. 제외 설정을 켜고 끌 때는 Qdrant를 고치지 않는다
 - Qdrant 벡터 식별값을 기록 식별값과 같게 쓰지 말 것 (기록 1개에 벡터 여러 개)
 - Qdrant 검색에는 user_id 필터를 반드시 건다
-- 웹 챗봇과 MCP 찾기는 ai_search_excluded가 참인 그룹의 기록을 결과에서 뺀다. 가공·연결 추천·AI 그룹 추천에는 적용하지 않는다
+- 웹 챗봇과 MCP 찾기는 ai_search_excluded가 참인 그룹(화면: AI 활용 꺼짐)의 기록을 결과에서 뺀다. 버튼으로 시작하는 AI(AI 분석·다시 분석, 기록 상세 'AI 추천')도 이 그룹의 기록에는 하지 않는다. 자동 가공(글자 추출·원문 조각 벡터·가공 후 그룹 추천)과 연결 추천에는 적용하지 않는다
 - URL·영상 링크의 원문 글은 DB에도 Qdrant에도 저장하지 않는다
 - Storage 원본: 출처 링크(source_url)가 있는 파일은 가공 성공(done) 후 Storage 원본을 지우고 출처 링크로 본다. 출처 링크가 없는 파일(내 컴퓨터에서 올린 파일, 화면 캡처)은 원본을 유지한다. 가공에 실패한 파일은 지우지 않는다
 - 기록 삭제는 docs/database.md의 '기록 삭제 절차' 순서를 지킨다: 확인 창 → status deleting → Qdrant 벡터 삭제 → Storage 파일 삭제 → DB 기록 삭제(재발견 메모·연결은 CASCADE). DB를 먼저 지우지 말 것
