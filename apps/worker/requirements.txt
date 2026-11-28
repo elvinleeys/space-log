@@ -1,0 +1,13 @@
+fastapi==0.165.0
+uvicorn[standard]==0.54.0
+httpx==0.28.1
+beautifulsoup4==4.15.0
+pypdf==7.2.0
+pytesseract==0.3.13
+pillow==13.0.0
+youtube-transcript-api==1.2.5
+supabase==2.34.1
+pytest==9.2.0
+
+# svg OCR(config.SVG_OCR_ENABLED)을 켤 때만 필요하다. 서버에 cairo 라이브러리도 있어야 한다
+# cairosvg==2.9.1
