@@ -17,7 +17,17 @@ Next.js 웹. 수집 + 찾기 + 관리를 맡는다.
 
 # API 규칙
 - 사용자 확인은 Supabase 인증 세션 기준. 다른 사용자의 기록·그룹에 접근하지 못하게 할 것
-- 기록 생성 시 status uploading, 업로드 완료 알림 시 queued로 바꾼 뒤 worker에 가공 요청
+- 기록 생성 시 status uploading, 업로드 완료 알림 시 queued로 바꾼 뒤 worker에 가공 요청. 파일 없는 기록(memo·highlight·url·video)은 생성할 때 바로 queued로 만들고 가공 요청
+- 파일 기록은 파일(1~10개, 합계 50MB)마다 record_file 행과 서명 업로드 주소(createSignedUploadUrl)를 발급. 경로는 `user_id/record_id/file_id.확장자`, 비밀키 클라이언트는 이때만 쓴다. 발급이 하나라도 실패하면 기록을 지워 되돌린다
+- 업로드 완료 알림은 모든 파일이 Storage에 있을 때만 queued로 바꾼다
+- 요청 검사·응답 형식은 packages/shared의 validateCreateRecordRequest와 타입을 따른다. 오류 응답: `{ error: { code, message } }` (INVALID_INPUT 400, TOO_MANY_FILES 400, UNAUTHORIZED 401, GROUP_NOT_FOUND 404, FILE_TOO_LARGE 413, RECORD_TOO_LARGE 413, UNSUPPORTED_FILE_TYPE 415)
+- 화면의 기록 제목·파일 이름은 packages/shared의 displayRecordTitle·displayFileName으로 만든다 (DB에 저장하지 않음)
+- 로그인 확인: 데스크톱은 `Authorization: Bearer 토큰`, 웹은 쿠키 세션 (getAuthedClient)
+- 저장 때 worker에 보내는 요청은 자동 가공(글자 추출 + 원문 조각 벡터)만. AI 분석은 보내지 않는다
+- information_content는 memo·highlight 본문 전용. 다른 형식의 메모는 original_context (기록 상세의 '메모')
+- AI 분석 API (명세만, 구현은 다음 작업): `POST /api/records/{id}/analysis`(분석·다시 분석. 대상 url·video·file·capture, 같은 메모면 409 ANALYSIS_UNCHANGED, 분석 중이면 409), `DELETE /api/records/{id}/analysis`(지우기: AI 정리글 + 요약본 벡터, analysis_status none)
+- 메모 자동 저장 `PATCH /api/records/{id}` (original_context, '메모에 옮기기' 시 analysis_moved_at). 버튼 판단은 packages/shared canStartAnalysis·canReanalyze·canMoveAnalysisToMemo
+- 챗봇 '기록으로 저장'은 chat 기록(analysis_status done, 답변은 summary·summary_detail, 근거 기록은 summary_detail.sources). POST /api/records로는 chat을 만들 수 없다
 - worker 요청에는 X-Worker-Secret 헤더를 붙이고, 응답을 기다리지 않고 바로 클라이언트에 응답
 - worker 전달이 실패해도 queued로 남겨 두면 worker의 재처리가 처리한다
 
@@ -29,7 +39,7 @@ Next.js 웹. 수집 + 찾기 + 관리를 맡는다.
 - 질문 벡터는 worker와 같은 임베딩 모델로 만든다. 모델 이름은 한 곳의 설정값을 같이 쓸 것
 - Qdrant 연결 코드는 서버 코드에만 두고, packages/shared/src/vector의 인터페이스를 구현한다
 - Qdrant 검색에는 user_id 필터를 반드시 건다
-- status가 deleting인 기록은 화면, 챗봇, MCP 찾기, 함께 볼만한 기록 어디에도 보여 주지 않는다
+- status가 deleting인 기록은 화면, 챗봇, MCP 찾기, 연관 기록 어디에도 보여 주지 않는다
 - 웹 챗봇과 MCP 찾기 결과에서 ai_search_excluded가 참인 그룹의 기록을 반드시 뺀다 (기록 목록·우주 화면은 그대로 보여 줌). 검색할 때 제외 그룹 id 목록을 Qdrant 조건으로 넘겨 group_id로 거른다
 - 기록의 그룹을 바꾸거나 그룹 삭제 시 기록을 옮기면, 그 record_id의 Qdrant 벡터 group_id도 같은 요청 안에서 갱신한다
 - 답변 재료는 요약본, 하이라이트 문장, 메모 글. URL·영상 링크의 원문 글은 저장하지 않으므로 쓰지 않는다
@@ -39,11 +49,11 @@ Next.js 웹. 수집 + 찾기 + 관리를 맡는다.
 - docs/database.md의 '기록 삭제 절차'를 따른다: 확인 창 → status deleting → Qdrant 벡터 삭제 → Storage 파일 삭제 → DB 기록 삭제
 - 기록 상세의 지우기, 그룹을 '기록까지 모두 삭제', 블랙홀의 지우기가 모두 같은 절차를 쓴다
 
-# 함께 볼만한 기록 (기록 상세)
+# 연관 기록 (기록 상세)
 - 이 기록의 요약본 벡터로 Qdrant를 검색해 유사도 0.8 이상 중 상위 3개를 링크로 보여 준다. 자기 자신 제외, user_id 필터
 - 결과는 DB에서 다시 확인해 없거나 deleting인 기록을 뺀다
 - 연결하기·삭제 버튼 없이 보기 전용. 연결(모아보기·별자리)과 별개
-- 가공이 끝나지 않아 벡터가 없는 기록은 함께 볼만한 기록을 보여 주지 않는다
+- AI 분석이 없어 요약본 벡터가 없는 기록은 연관 기록(화면: 함께 볼 만한 기록)을 보여 주지 않는다
 
 # 그룹 삭제
 - 빈 그룹은 바로 지운다

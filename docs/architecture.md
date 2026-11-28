@@ -10,7 +10,7 @@ flowchart LR
   end
   api[웹 서버 API<br/>Next.js]
   storage[(Supabase Storage<br/>원본 파일)]
-  worker[가공 서버 FastAPI<br/>추출·요약·임베딩]
+  worker[가공 서버 FastAPI<br/>추출·색인 / 요청 시 AI 분석]
   db[(Supabase DB<br/>기준 데이터)]
   qdrant[(Qdrant<br/>벡터 색인)]
   clients -- 1 기록 생성 요청 --> api
@@ -27,8 +27,10 @@ flowchart LR
 2. 파일 업로드: 파일을 Storage에 직접 올린다. 메모·하이라이트·URL·영상 링크는 이 단계가 없다
 3. 가공 요청: 업로드가 끝나면 웹 서버 API가 가공 서버(FastAPI)에 가공을 요청한다
 4. 파일 읽기: 가공 서버가 Storage에서 파일을 받는다
-5. 요약·상태 저장: 요약본과 처리 상태를 Supabase DB에 저장한다
-6. 벡터 저장: 요약본 벡터와 원문 조각 벡터를 Qdrant에 올린다
+5. 상태 저장: 처리 상태를 Supabase DB에 저장한다
+6. 벡터 저장: 원문 조각 벡터를 Qdrant에 올린다
+
+AI 분석은 저장 때 하지 않는다. 사용자가 기록 상세의 'AI 분석하기'(다시 분석)나 챗봇으로 요청하면 웹 서버 API가 가공 서버에 분석을 요청하고, 가공 서버가 AI 정리글을 Supabase DB에, 요약본 벡터를 Qdrant에 저장한다
 7. 조회·저장: 웹 서버 API가 기록, 그룹, 메모, 연결을 Supabase DB에서 읽고 쓴다
 8. 챗봇 검색: 웹 서버 API가 질문을 벡터로 바꿔 Qdrant에서 찾고, DB에서 기록을 불러와 답한다
 

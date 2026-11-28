@@ -6,7 +6,7 @@
 - src/vector: 검색 결과 타입과 검색 함수 인터페이스만 둔다. Qdrant 키를 쓰는 실제 구현은 apps/web 서버 코드에 둔다
 
 # 규칙
-- Supabase SDK는 이 패키지 안에서만 import. Qdrant SDK는 여기서 import하지 말 것
+- Supabase SDK는 이 패키지 안에서만 import (예외: apps/web 서버 코드의 src/lib/supabase/server.ts). Qdrant SDK는 여기서 import하지 말 것
 - 비밀키를 쓰는 코드는 두지 말 것. 데스크톱 앱과 브라우저에서도 import되기 때문
 - 타입은 docs/database.md의 필드 이름과 맞출 것
 - 수정하면 Vitest 테스트를 함께 추가·수정
