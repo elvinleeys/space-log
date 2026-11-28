@@ -26,6 +26,14 @@ class RecordFile:
     file_type: str
 
 
+@dataclass
+class Group:
+    group_id: str
+    name: str
+    # '분류 안 된 기록'이면 참
+    is_default: bool = False
+
+
 class RecordStore(Protocol):
     def get_record(self, record_id: str) -> Record | None: ...
 
@@ -42,3 +50,29 @@ class RecordStore(Protocol):
     def download(self, file_path: str) -> bytes: ...
 
     def delete_files(self, file_paths: list[str]) -> None: ...
+
+    def list_groups(self, owner_id: str) -> list[Group]:
+        """그 사용자의 그룹 전부 ('분류 안 된 기록' 포함)."""
+        ...
+
+    def set_suggested_group(self, record_id: str, group_id: str) -> None:
+        """AI가 추천한 그룹을 남긴다. 기록의 그룹(group_id)은 바꾸지 않는다."""
+        ...
+
+    def save_analysis(
+        self,
+        record_id: str,
+        one_line: str,
+        key_points: list[str],
+        context: str | None,
+    ) -> None:
+        """AI 정리글을 저장하고 analysis_status를 done으로 바꾼다. deleting인 기록은 바꾸지 않는다.
+
+        summary(핵심 1줄), summary_detail, analyzed_at(지금), analyzed_context(분석 때 메모)를 쓰고
+        analysis_moved_at을 비운다.
+        """
+        ...
+
+    def set_analysis_status(self, record_id: str, status: str) -> None:
+        """deleting인 기록은 바꾸지 않는다."""
+        ...

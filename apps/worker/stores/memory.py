@@ -2,7 +2,7 @@
 
 from dataclasses import replace
 
-from .base import Record, RecordFile
+from .base import Group, Record, RecordFile
 
 
 class MemoryStore:
@@ -13,6 +13,12 @@ class MemoryStore:
         self.errors: dict[str, str | None] = {}
         # 확인용: 기록마다 거쳐 간 status
         self.history: dict[str, list[str]] = {}
+        # 사용자마다 그룹 목록, 기록마다 AI 추천 그룹
+        self.groups: dict[str, list[Group]] = {}
+        self.suggested: dict[str, str] = {}
+        # 기록마다 저장된 AI 정리글과 분석 상태
+        self.analyses: dict[str, dict] = {}
+        self.analysis_status: dict[str, str] = {}
 
     def add(
         self,
@@ -47,3 +53,35 @@ class MemoryStore:
     def delete_files(self, file_paths: list[str]) -> None:
         for path in file_paths:
             self.blobs.pop(path, None)
+
+    def list_groups(self, owner_id: str) -> list[Group]:
+        return list(self.groups.get(owner_id, []))
+
+    def set_suggested_group(self, record_id: str, group_id: str) -> None:
+        record = self.records.get(record_id)
+        if record is None or record.status == "deleting":
+            return
+        self.suggested[record_id] = group_id
+
+    def save_analysis(
+        self,
+        record_id: str,
+        one_line: str,
+        key_points: list[str],
+        context: str | None,
+    ) -> None:
+        record = self.records.get(record_id)
+        if record is None or record.status == "deleting":
+            return
+        self.analyses[record_id] = {
+            "summary": one_line,
+            "summary_detail": {"one_line": one_line, "key_points": key_points},
+            "analyzed_context": context,
+        }
+        self.analysis_status[record_id] = "done"
+
+    def set_analysis_status(self, record_id: str, status: str) -> None:
+        record = self.records.get(record_id)
+        if record is None or record.status == "deleting":
+            return
+        self.analysis_status[record_id] = status

@@ -11,7 +11,13 @@
 - main: OS 연동. 항상 위에 뜨는 창, 화면 캡처, 파일 읽기, 로그인용 임시 서버
 - preload: main과 renderer를 잇는 통로. renderer는 preload가 노출한 API만 사용
 - renderer: 화면. Node.js API를 직접 쓰지 말 것
-- IPC 채널 이름은 한 파일에서만 정의 (파일 위치는 빌드 도구를 정한 뒤 결정)
+- IPC 채널 이름은 한 파일에서만 정의 (src/ipc.ts)
+
+# 빌드
+- 개발·빌드는 electron-vite (`npm run dev -w apps/desktop`, `npm run build -w apps/desktop`)
+- 설치 파일은 electron-builder (`npm run dist -w apps/desktop`, 설정은 electron-builder.yml). 결과는 dist/에 생기고 git에 올리지 않는다
+- 앱·트레이 아이콘은 resources/에 둔다. 원본은 docs/design/logo/desktop
+- 프로젝트 폴더가 iCloud 동기화 폴더 안에 있으면 macOS 서명이 실패한다. 출력 폴더를 밖으로 지정: `npm run dist -w apps/desktop -- -c.directories.output="$HOME/Downloads/spacelog-dist"`
 
 # 로그인 (로컬 주소로 돌려받기 + PKCE)
 1. 앱이 127.0.0.1의 임의 포트에 임시 서버를 연다
@@ -29,6 +35,8 @@
 - 메뉴 (캐릭터를 누르면 열림): 클립보드 붙여넣기, 메모, 화면 캡처, 파일선택, 웹 열기, 앱 종료
   - 클립보드 붙여넣기: 글은 하이라이트 기록(요약 없이 문장 그대로), 이미지는 파일 기록, 주소는 URL 기록
   - 웹 열기는 브라우저로 웹을 연다. 앱 안에 열람·검색·챗봇 화면을 만들지 말 것
+- 트레이 메뉴 (메뉴 막대·작업 표시줄 아이콘): 로그인(로그인 전에만 보임), 웹 열기, 컴퓨터를 켜면 자동 실행, 앱 종료. 수집 기능은 넣지 않는다 (캐릭터 메뉴에 있다)
+  - 자동 실행은 기본 꺼짐. 설치한 앱에서만 누를 수 있다 (개발 모드에서는 빈 Electron이 등록되므로 비활성)
 - 저장 창: 놓거나 메뉴로 넣으면 그룹을 고르는 작은 저장 창을 띄운다. '분류 안 된 기록'이 선택된 채로 뜨고, 다른 그룹 고르기, 새 그룹 만들기로 그룹을 정해 저장할 수 있다. 저장 창에는 AI 추천이 없다 (웹 기록 상세에서 받는다, 2026-11-28)
 - URL·영상 링크는 웹 주소를 기록에 저장한다. 내용 요약은 가공 서버가 한다. 원문 글과 영상 자체는 저장하지 않는다
 - 저장 결과는 캐릭터 옆 말풍선으로 알린다. 상황별 문구와 사라지는 시점은 docs/spec/screens/01-desktop-collector.md의 표를 따른다
@@ -38,10 +46,7 @@
 - 지원 형식(csv, txt, md, jpeg, jpg, png, svg, HTML, PDF)과 10MB 제한은 올리기 전에 앱에서 먼저 검사
 
 # 미정 — 구현 전에 사용자에게 선택지를 주고 물어볼 것
-- Electron 빌드 도구 (Electron Forge, electron-vite 등)
 - 포트와 PKCE 값을 웹 로그인 페이지에 넘기는 방식, 토큰 교환을 맡는 서버
 - 토큰 보관 위치
 - 브라우저 로그인을 끝내지 않고 닫았을 때 임시 서버 처리
-- AI 추천 버튼이 부르는 API의 주소와 형식 (웹 담당과 합의. F3의 버튼 추천 처리 위치가 웹 서버로 확정되어야 함)
-- AI 추천에 실패했을 때 저장 창에 보일 안내
 - macOS에서 클립보드의 출처 주소를 읽을 수 있는지
