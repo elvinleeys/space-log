@@ -29,4 +29,4 @@
 | 리마인드 | N일 전 오늘 넣은 기록을 다시 보여 주는 것 (P1, v2에서 숨김) | 리마인드 |
 | AI 활용 꺼짐 | 챗봇 설정 '챗봇이 읽지 않을 그룹'에서 고른 그룹 (ai_search_excluded). 챗봇·MCP 검색에서 빠지고 AI 분석·기록 상세 AI 추천이 막힌다. 자동 가공은 그대로 | 챗봇이 읽지 않을 그룹 |
 | 우주먼지 | 도움말 챗봇 이름. 버튼 글자는 '물어보기' | 물어보기 |
-| 시안 v1, v2 | docs/design/의 웹 시안. 화면 명세는 v2와 화면정의서(docs/screen-definition/) 기준 | |
+| 시안 | docs/design/의 웹 시안(spacelog-prototype.html, spacelog-login.html). 화면 명세는 이 시안과 화면정의서(docs/screen-definition/) 기준. 이전 버전은 git 이력에서 확인 | |

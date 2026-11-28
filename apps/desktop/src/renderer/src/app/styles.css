@@ -1,4 +1,4 @@
-/* Tailwind 진입 파일. 값은 docs/design/spacelog-prototype-v2.html (웹 프로토타입, 다크 모드)을 따른다.
+/* Tailwind 진입 파일. 값은 docs/design/spacelog-prototype.html (웹 프로토타입, 다크 모드)을 따른다.
    색과 크기는 여기 테마 값만 바꾸면 화면 전체에 반영된다. 다른 CSS 파일은 만들지 않는다. */
 @import 'tailwindcss';
 @import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';

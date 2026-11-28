@@ -9,7 +9,7 @@ Next.js 웹. 수집 + 찾기 + 관리를 맡는다.
 - 작업 목록: docs/tasks/dev-b-web.md
 
 # 화면 규칙
-- 웹 UI 기준은 시안 v3(docs/design/spacelog-prototype-v3.html)와 docs/design/design.md. 배치·동작은 docs/spec/screens와 화면정의서, 색·글자·모서리 등 값은 apps/web/src/app/globals.css의 디자인 토큰을 쓴다
+- 웹 UI 기준은 시안 v3(docs/design/spacelog-prototype.html)와 docs/design/design.md. 배치·동작은 docs/spec/screens와 화면정의서, 색·글자·모서리 등 값은 apps/web/src/app/globals.css의 디자인 토큰을 쓴다
 - 화면 글자는 '기록'·'그룹'을 쓰고 '별'·'행성'이라고 쓰지 않는다. Space에서 그룹은 행성 모양, '분류 안 된 기록'은 성운 모양
 - 기간 필터(전체·오늘·이번 주·이번 달·직접 지정)의 기준은 기록의 만든 시각(넣은 날)
 - 처리 중(uploading, queued, processing)인 기록도 화면에 보여 준다
