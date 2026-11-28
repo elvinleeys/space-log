@@ -1,0 +1,67 @@
+/* Tailwind 진입 파일. 값은 docs/design/spacelog-prototype-v2.html (웹 프로토타입, 다크 모드)을 따른다.
+   색과 크기는 여기 테마 값만 바꾸면 화면 전체에 반영된다. 다른 CSS 파일은 만들지 않는다. */
+@import 'tailwindcss';
+@import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css';
+
+@theme {
+  --font-sans:
+    'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
+    system-ui, sans-serif;
+
+  /* 글자 단계: 크기 / 줄 높이 / 자간. 프로토타입의 caption, fine-print, tagline, 안내 말풍선 */
+  --text-caption: 0.875rem;
+  --text-caption--line-height: 1.43;
+  --text-caption--letter-spacing: -0.224px;
+  --text-fine: 0.75rem;
+  --text-fine--line-height: 1.3; /* 프로토타입은 한 줄짜리라 1.0. 여기는 줄이 바뀌는 안내문이 있다 */
+  --text-fine--letter-spacing: -0.12px;
+  --text-tip: 0.8125rem;
+  --text-tip--line-height: 1.3;
+  --text-wordmark: 1.3125rem;
+  --text-wordmark--line-height: 1.19;
+  --text-wordmark--letter-spacing: 0.18em;
+
+  /* 면 */
+  --color-panel: rgb(30 30 32);
+  --color-hover: rgb(255 255 255 / 0.08);
+  --color-toast: #f5f5f7;
+
+  /* 선 */
+  --color-line: rgb(255 255 255 / 0.12);
+  --color-line-button: rgb(255 255 255 / 0.16);
+  --color-line-dashed: rgb(255 255 255 / 0.24);
+  --color-divider: rgb(255 255 255 / 0.08);
+
+  /* 글자 */
+  --color-ink: #ffffff;
+  --color-ink-sub: #cccccc;
+  --color-ink-off: #7a7a7a;
+  --color-toast-ink: #1d1d1f;
+
+  /* 강조색은 한 화면에 하나 */
+  --color-accent: #0066cc;
+  --color-focus: #0071e3;
+  --color-accent-bright: #2997ff; /* 어두운 면 위 입력칸 포커스 선 */
+
+  --radius-window: 18px;
+  --radius-field: 12px;
+  --radius-memo: 14px;
+  --radius-bubble: 11px;
+  --radius-row: 9px;
+
+  --shadow-float: 3px 5px 30px rgb(0 0 0 / 0.22);
+  --ease-press: cubic-bezier(0.25, 0.1, 0.25, 1);
+
+  --spacing-panel: 18.75rem; /* 목록 창 폭 300px */
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    word-break: keep-all;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "@spacelog/desktop",
+  "productName": "Spacelog",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Spacelog 데스크톱 수집앱",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@space-log/shared": "*",
+    "lucide-react": "^1.82.0",
+    "pretendard": "^1.3.9",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.5",
+    "@types/node": "^26.6.11",
+    "@types/react": "^19.3.3",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "electron": "^45.5.0",
+    "electron-vite": "^6.0.0",
+    "tailwindcss": "^4.3.5",
+    "vite": "^8.4.0",
+    "vitest": "^5.1.2"
+  }
+}
