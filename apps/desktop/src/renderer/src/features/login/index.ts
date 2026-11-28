@@ -34,6 +34,15 @@ export function useSession(): Session {
     setStatus('loggedOut');
   }, []);
 
+  // 트레이 메뉴의 로그인. 로그인 상태는 여기 한 곳에서만 바꾼다
+  useEffect(
+    () =>
+      ipc.onLoginRequest(() => {
+        if (status === 'loggedOut') login();
+      }),
+    [status, login],
+  );
+
   // cancel은 호출 시점에 브릿지를 읽도록 감싼다
   const cancel = useCallback(() => ipc.cancelLogin(), []);
   return { status, error, login, cancel, logout };

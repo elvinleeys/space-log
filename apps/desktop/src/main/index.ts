@@ -1,11 +1,16 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { join } from 'node:path';
+// 원본은 docs/design/logo/desktop. icon-mac.png는 icon.icns에서 뽑았다 (Dock은 icns를 읽지 못한다)
+import macIcon from '../../resources/icon-mac.png?asset';
+import linuxIcon from '../../resources/icon.png?asset';
+import winIcon from '../../resources/icon.ico?asset';
 import { IPC, type WindowLayout } from '../ipc';
 import { cancelLogin, login } from './auth/login';
 import { clearTokens, loadTokens } from './auth/token-store';
 import { captureRegion, registerCaptureIpc } from './capture';
 import { readClipboard } from './clipboard';
 import { pickFile, readPickedFile } from './files';
+import { createTray } from './tray';
 import {
   applyLayout,
   createCharacterWindow,
@@ -27,17 +32,35 @@ function loadPage(win: BrowserWindow, hash = '') {
 }
 
 app.whenReady().then(() => {
-  const win = createCharacterWindow(preload);
+  // macOS는 창 아이콘이 없어 Dock 아이콘으로 지정한다. 설치된 앱은 electron-builder.yml의 icon.icns를 쓴다
+  if (process.platform === 'darwin' && !app.isPackaged)
+    app.dock?.setIcon(macIcon);
+  const win = createCharacterWindow(
+    preload,
+    process.platform === 'win32' ? winIcon : linuxIcon,
+  );
 
-  ipcMain.handle(IPC.authLogin, () => login());
+  const openWeb = () => shell.openExternal(WEB_URL);
+  const refreshTray = createTray({
+    loggedIn: () => loadTokens() !== null,
+    // 로그인은 renderer가 맡는다 (기다리는 중·실패 안내가 거기 있다)
+    login: () => win.webContents.send(IPC.authRequest),
+    openWeb,
+    quit: () => app.quit(),
+  });
+
+  ipcMain.handle(IPC.authLogin, () => login().finally(refreshTray));
   ipcMain.on(IPC.authCancel, () => cancelLogin());
   ipcMain.handle(IPC.authStatus, () => ({ loggedIn: loadTokens() !== null }));
-  ipcMain.handle(IPC.authLogout, () => clearTokens());
+  ipcMain.handle(IPC.authLogout, () => {
+    clearTokens();
+    refreshTray();
+  });
   ipcMain.handle(IPC.clipboardRead, () => readClipboard());
   ipcMain.handle(IPC.captureStart, () => captureRegion(win, preload, loadPage));
   ipcMain.handle(IPC.filePick, () => pickFile());
   ipcMain.handle(IPC.fileRead, (_e, path: string) => readPickedFile(path));
-  ipcMain.on(IPC.webOpen, () => shell.openExternal(WEB_URL));
+  ipcMain.on(IPC.webOpen, openWeb);
   ipcMain.on(IPC.appQuit, () => app.quit());
   ipcMain.on(IPC.windowResize, (e, layout: WindowLayout) => {
     if (e.sender === win.webContents) applyLayout(win, layout);
