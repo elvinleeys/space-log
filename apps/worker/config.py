@@ -37,27 +37,33 @@ def store_kind() -> str:
     return os.environ.get("WORKER_STORE", "supabase")
 
 
-# 그림 설명에 쓸 AI별 기본 모델. 환경변수 VISION_MODEL로 바꾼다
-VISION_DEFAULT_MODELS = {
+# AI 회사와 키는 가공 서버의 모든 AI 일이 함께 쓰고, 모델만 일마다 따로 고른다.
+#   AI_PROVIDER      openai, claude, gemini 중 하나
+#   AI_API_KEY       그 회사의 키
+#   VISION_MODEL     그림 설명에 쓸 모델
+#   RECOMMEND_MODEL  그룹 추천에 쓸 모델 (추천은 아직 만들지 않았다. 만들 때 ai_model("recommend")로 읽는다)
+# 일의 모델을 비워 두면 그 회사의 기본 모델을 쓴다
+AI_DEFAULT_MODELS = {
     "openai": "gpt-6.2-astra",
     "claude": "claude-opus-5-5",
     "gemini": "gemini-3.8-flash",
 }
+AI_TASK_MODEL_ENV = {"vision": "VISION_MODEL", "recommend": "RECOMMEND_MODEL"}
 
 
-def vision_provider() -> str:
-    """openai, claude, gemini 중 하나"""
-    return os.environ.get("VISION_PROVIDER") or "openai"
+def ai_provider() -> str:
+    return os.environ.get("AI_PROVIDER") or "openai"
 
 
-def vision_api_key() -> str:
-    """비어 있으면 그림 설명을 만들지 않는다 (그림을 바깥으로 보내지 않는다)."""
-    return os.environ.get("VISION_API_KEY", "")
+def ai_api_key() -> str:
+    """비어 있으면 AI를 부르지 않는다 (그림도 글도 바깥으로 보내지 않는다)."""
+    return os.environ.get("AI_API_KEY", "")
 
 
-def vision_model() -> str:
-    return os.environ.get("VISION_MODEL") or VISION_DEFAULT_MODELS.get(
-        vision_provider(), ""
+def ai_model(task: str) -> str:
+    """task는 AI_TASK_MODEL_ENV의 키. 모르는 일이면 KeyError로 바로 알린다."""
+    return os.environ.get(AI_TASK_MODEL_ENV[task]) or AI_DEFAULT_MODELS.get(
+        ai_provider(), ""
     )
 
 

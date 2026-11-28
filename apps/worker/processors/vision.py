@@ -1,7 +1,8 @@
 """이미지가 무엇을 담고 있는지 AI에게 글로 설명받는다. 글자가 없는 사진·도표·시안도 내용으로 찾을 수 있게 한다.
 
 - 켜고 끄기: config.IMAGE_DESCRIPTION_ENABLED
-- 어느 AI를 쓸지: 환경변수 VISION_PROVIDER (openai, claude, gemini), 키는 VISION_API_KEY, 모델은 VISION_MODEL
+- 어느 AI를 쓸지: 환경변수 AI_PROVIDER (openai, claude, gemini)와 AI_API_KEY. 가공 서버의 다른 AI 일과 함께 쓴다
+- 모델: 환경변수 VISION_MODEL. 비우면 그 회사의 기본 모델 (config.py)
 - 켜져 있고 키가 있으면 사용자의 이미지가 그 AI 회사로 전송된다. 키가 없으면 아무것도 보내지 않는다
 - 다른 AI를 더하려면 아래에 함수 하나를 쓰고 PROVIDERS에 넣는다
 """
@@ -143,20 +144,20 @@ PROVIDERS: dict[str, Callable[[bytes, str, str], str]] = {
 
 def is_active() -> bool:
     """그림 설명을 실제로 받는 상태인지: 켜져 있고 키가 있다."""
-    return config.IMAGE_DESCRIPTION_ENABLED and bool(config.vision_api_key())
+    return config.IMAGE_DESCRIPTION_ENABLED and bool(config.ai_api_key())
 
 
 def describe_image(image: Image.Image) -> str:
     if not is_active():
         return ""
-    api_key = config.vision_api_key()
-    name = config.vision_provider()
+    api_key = config.ai_api_key()
+    name = config.ai_provider()
     provider = PROVIDERS.get(name)
     if provider is None:
-        logger.warning("그림 설명: 모르는 VISION_PROVIDER 값 %r", name)
+        logger.warning("그림 설명: 모르는 AI_PROVIDER 값 %r", name)
         return ""
     try:
-        return provider(_to_jpeg(image), api_key, config.vision_model()).strip()
+        return provider(_to_jpeg(image), api_key, config.ai_model("vision")).strip()
     except Exception as e:
         # 설명은 덧붙이는 재료다. 세 회사의 오류 종류가 달라 한꺼번에 받고, 못 받아도 글자(OCR)만으로 가공을 끝낸다
         logger.warning("그림 설명을 받지 못함 (%s): %s", name, type(e).__name__)
