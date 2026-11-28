@@ -28,4 +28,4 @@
 | 빠른 분류 | '분류 안 된 기록' 카드에서 그룹 버튼으로 바로 옮기는 기능 (화면정의서 F-08) | |
 | 리마인드 | N일 전 오늘 넣은 기록을 다시 보여 주는 것 (P1, v2에서 숨김) | 리마인드 |
 | 우주먼지 | 도움말 챗봇 이름. 버튼 글자는 '물어보기' | 물어보기 |
-| 시안 v1, v2 | docs/design/의 웹 시안. 화면 명세는 v2와 화면정의서(docs/screen-definition/) 기준 | |
+| 시안 | docs/design/의 웹 시안(spacelog-prototype.html, spacelog-login.html). 화면 명세는 이 시안과 화면정의서(docs/screen-definition/) 기준. 이전 버전은 git 이력에서 확인 | |

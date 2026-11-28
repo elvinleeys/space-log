@@ -1,6 +1,6 @@
 # SPACELOG 화면 정의서
 
-- 기준 파일: `docs/design/spacelog-prototype-v2.html` (홈 `W01_Home_v3`, 그룹 창 `W02_PlanetPanel_v2`, 기록 상세 `W03_StarDetail`, Space 엔진 `spacelog-3d.js`)
+- 기준 파일: `docs/design/spacelog-prototype.html` (홈 `W01_Home_v3`, 그룹 창 `W02_PlanetPanel_v2`, 기록 상세 `W03_StarDetail`, Space 엔진 `spacelog-3d.js`)
 - 작성일: 2026-11-28
 - 디자인 값(색·글자·간격)은 `design.md`를 따릅니다. 이 문서는 **동작, 상태, 규칙, 예외**를 적습니다.
 - 각 기능은 같은 틀로 적습니다: 흐름 / 상태 / 규칙·제한 / 예외 / 반응형 / 문구 / 미정·프로토타입 한정. 해당 없는 칸은 "—".

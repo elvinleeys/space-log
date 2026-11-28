@@ -1,6 +1,6 @@
 # 명세 목차
 
-기준 문서: Spacelog PRD (2026-11-25), 화면정의서 [screen-definition-v1.md](../screen-definition/screen-definition-v1.md) (프로토타입 v2 `docs/design/spacelog-prototype-v2.html` 기준). 웹 화면이 다르면 화면정의서를 따른다.
+기준 문서: Spacelog PRD (2026-11-25), 화면정의서 [screen-definition-v1.md](../screen-definition/screen-definition-v1.md) (시안 `docs/design/spacelog-prototype.html` 기준). 웹 화면이 다르면 화면정의서를 따른다.
 `[확인 필요]`는 아직 정하지 않은 내용이다. 구현 전에 사용자에게 선택지를 주고 물어본다.
 
 - 요구사항: [requirements.md](requirements.md)
