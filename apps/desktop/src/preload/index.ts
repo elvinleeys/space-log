@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron';
-import { IPC, type SpacelogBridge } from '../ipc';
+import { IPC, type PanelSide, type SpacelogBridge } from '../ipc';
 
 const bridge: SpacelogBridge = {
   login: () => ipcRenderer.invoke(IPC.authLogin),
@@ -13,8 +13,12 @@ const bridge: SpacelogBridge = {
   pickFile: () => ipcRenderer.invoke(IPC.filePick),
   openWeb: () => ipcRenderer.send(IPC.webOpen),
   quit: () => ipcRenderer.send(IPC.appQuit),
-  resizeWindow: (width, height) =>
-    ipcRenderer.send(IPC.windowResize, { width, height }),
+  resizeWindow: (layout) => ipcRenderer.send(IPC.windowResize, layout),
+  onPanelSide: (listener) => {
+    const handler = (_e: unknown, side: PanelSide) => listener(side);
+    ipcRenderer.on(IPC.windowSide, handler);
+    return () => ipcRenderer.removeListener(IPC.windowSide, handler);
+  },
   moveWindow: (dx, dy) => ipcRenderer.send(IPC.windowMove, { dx, dy }),
   pathForFile: (file) => webUtils.getPathForFile(file),
 };
