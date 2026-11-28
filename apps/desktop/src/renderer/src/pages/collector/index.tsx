@@ -37,6 +37,14 @@ export function CollectorPage({ onLogout }: { onLogout: () => void }) {
     return () => clearTimeout(timer);
   }, [bubble]);
 
+  // 다른 곳을 누르면(창이 포커스를 잃으면) 메뉴를 닫는다. 메모와 저장 창은 쓰던 내용이 있어 닫지 않는다
+  useEffect(() => {
+    const close = () =>
+      setPanel((p) => (p.type === 'menu' || p.type === 'dev' ? CLOSED : p));
+    window.addEventListener('blur', close);
+    return () => window.removeEventListener('blur', close);
+  }, []);
+
   /** 받은 것이 있으면 저장 창을 띄우고, 넣을 수 없으면 말풍선으로 알린다 */
   const receive = useCallback((result: CollectResult) => {
     if (!result) return setPanel(CLOSED);
@@ -100,6 +108,7 @@ export function CollectorPage({ onLogout }: { onLogout: () => void }) {
           setPanel((p) => (p.type === 'none' ? { type: 'menu' } : CLOSED))
         }
         onDropData={(data) => receive(classifyDrop(data))}
+        onHide={() => setPanel(CLOSED)}
         onContextMenu={
           import.meta.env.DEV ? () => setPanel({ type: 'dev' }) : undefined
         }

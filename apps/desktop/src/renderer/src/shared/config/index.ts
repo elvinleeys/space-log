@@ -1,14 +1,7 @@
 // 문구, 시간, 제한값은 여기서만 바꾼다. 말풍선 문구는 docs/spec/screens/01-desktop-collector.md 의 표를 따른다.
 
-// 캐릭터 크기 단계. Tailwind가 찾을 수 있게 클래스 이름을 통째로 적는다
-export const CHARACTER_SIZES = [
-  'size-16',
-  'size-20',
-  'size-24',
-  'size-32',
-  'size-40',
-  'size-48',
-];
+// 캐릭터 크기 단계(우주인이 보이는 부분의 높이). Tailwind가 찾을 수 있게 클래스 이름을 통째로 적는다
+export const CHARACTER_SIZES = ['h-13', 'h-16', 'h-19', 'h-26', 'h-32', 'h-38'];
 export const DEFAULT_CHARACTER_SIZE = 2;
 
 export const POLL_INTERVAL_MS = 3000;
@@ -98,6 +91,8 @@ export const TEXT = {
     failed: '로그인하지 못했어요. 다시 시도해 주세요',
   },
   resize: '캐릭터 크기 조절',
+  hide: '캐릭터 잠시 내리기',
+  show: '캐릭터 다시 보이기',
   retry: '다시 시도',
   close: '닫기',
 };

@@ -10,6 +10,12 @@ describe('캐릭터 크기 단계', () => {
     expect(sizeAfterDrag(2, 24, 24)).toBe(1);
   });
 
+  it('다른 모서리도 바깥쪽으로 끌면 커진다', () => {
+    expect(sizeAfterDrag(2, 24, 24, 1, 1)).toBe(3);
+    expect(sizeAfterDrag(2, 24, -24, 1, -1)).toBe(3);
+    expect(sizeAfterDrag(2, 24, -24, -1, 1)).toBe(1);
+  });
+
   it('조금 끈 것은 무시한다', () => {
     expect(sizeAfterDrag(2, -5, -5)).toBe(2);
   });

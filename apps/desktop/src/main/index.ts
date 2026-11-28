@@ -1,15 +1,15 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import { join } from 'node:path';
-import { IPC } from '../ipc';
+import { IPC, type WindowLayout } from '../ipc';
 import { cancelLogin, login } from './auth/login';
 import { clearTokens, loadTokens } from './auth/token-store';
 import { captureRegion, registerCaptureIpc } from './capture';
 import { readClipboard } from './clipboard';
 import { pickFile } from './files';
 import {
+  applyLayout,
   createCharacterWindow,
   moveBy,
-  resizeKeepingAnchor,
 } from './window/character-window';
 
 // 웹이 배포되면 그 주소로 바꾼다
@@ -35,12 +35,11 @@ app.whenReady().then(() => {
   ipcMain.handle(IPC.authLogout, () => clearTokens());
   ipcMain.handle(IPC.clipboardRead, () => readClipboard());
   ipcMain.handle(IPC.captureStart, () => captureRegion(win, preload, loadPage));
-  ipcMain.handle(IPC.filePick, () => pickFile(win));
+  ipcMain.handle(IPC.filePick, () => pickFile());
   ipcMain.on(IPC.webOpen, () => shell.openExternal(WEB_URL));
   ipcMain.on(IPC.appQuit, () => app.quit());
-  ipcMain.on(IPC.windowResize, (e, size: { width: number; height: number }) => {
-    if (e.sender === win.webContents)
-      resizeKeepingAnchor(win, size.width, size.height);
+  ipcMain.on(IPC.windowResize, (e, layout: WindowLayout) => {
+    if (e.sender === win.webContents) applyLayout(win, layout);
   });
   ipcMain.on(IPC.windowMove, (e, d: { dx: number; dy: number }) => {
     if (e.sender === win.webContents) moveBy(win, d.dx, d.dy);

@@ -1,12 +1,19 @@
 import { app, BrowserWindow, screen } from 'electron';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { IPC, type WindowLayout } from '../../ipc';
+import { placeWindow } from './place';
 
-// 창의 오른쪽 아래 모서리를 기준점으로 저장한다. 메뉴나 저장 창이 열려 창이 커져도 캐릭터는 제자리에 있다.
+// 캐릭터가 보이는 부분의 오른쪽 아래 모서리를 기준점으로 저장한다. 메뉴나 저장 창이 열려 창이 커져도 캐릭터는 제자리에 있다.
 interface Anchor {
   x: number;
   y: number;
 }
+
+let anchor: Anchor;
+/** renderer가 마지막으로 알려 준 내용 배치 */
+let layout: WindowLayout | null = null;
+let sentSide = '';
 
 const anchorFile = () => join(app.getPath('userData'), 'window.json');
 
@@ -22,16 +29,12 @@ function loadAnchor(): Anchor | null {
 }
 
 let saveTimer: NodeJS.Timeout | undefined;
-function saveAnchorSoon(win: BrowserWindow) {
+function saveAnchorSoon() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    if (win.isDestroyed()) return;
-    const b = win.getBounds();
-    writeFileSync(
-      anchorFile(),
-      JSON.stringify({ x: b.x + b.width, y: b.y + b.height }),
-    );
-  }, 300);
+  saveTimer = setTimeout(
+    () => writeFileSync(anchorFile(), JSON.stringify(anchor)),
+    300,
+  );
 }
 
 /** 모니터 구성이 바뀌어도 창이 화면 밖으로 나가지 않게 한다 */
@@ -45,7 +48,7 @@ function clampToScreen(b: Electron.Rectangle): Electron.Rectangle {
 export function createCharacterWindow(preload: string): BrowserWindow {
   const size = { width: 120, height: 120 };
   const area = screen.getPrimaryDisplay().workArea;
-  const anchor = loadAnchor() ?? {
+  anchor = loadAnchor() ?? {
     x: area.x + area.width - 40,
     y: area.y + area.height - 40,
   };
@@ -79,29 +82,28 @@ export function createCharacterWindow(preload: string): BrowserWindow {
   return win;
 }
 
-/** 내용 크기에 맞춰 창 크기를 바꾼다. 오른쪽 아래 모서리는 그대로 둔다 */
-export function resizeKeepingAnchor(
-  win: BrowserWindow,
-  width: number,
-  height: number,
-) {
-  const b = win.getBounds();
-  const w = Math.max(1, Math.ceil(width));
-  const h = Math.max(1, Math.ceil(height));
-  win.setBounds(
-    clampToScreen({
-      x: b.x + b.width - w,
-      y: b.y + b.height - h,
-      width: w,
-      height: h,
-    }),
-  );
+/** 기준점에 맞춰 창을 놓고, 열리는 방향을 renderer에 알린다 */
+function place(win: BrowserWindow, alwaysTell: boolean) {
+  if (!layout) return;
+  const area = screen.getDisplayNearestPoint(anchor).workArea;
+  const placed = placeWindow(anchor, layout, area);
+  anchor = placed.anchor;
+  win.setBounds(placed.bounds);
+  const side = JSON.stringify(placed.side);
+  if (alwaysTell || side !== sentSide)
+    win.webContents.send(IPC.windowSide, placed.side);
+  sentSide = side;
+}
+
+/** 내용 크기가 바뀌면 창 크기를 맞춘다. 캐릭터는 그대로 둔다 */
+export function applyLayout(win: BrowserWindow, next: WindowLayout) {
+  layout = next;
+  // renderer가 새로 고쳐졌을 수 있으니 방향은 매번 알린다
+  place(win, true);
 }
 
 export function moveBy(win: BrowserWindow, dx: number, dy: number) {
-  const b = win.getBounds();
-  win.setBounds(
-    clampToScreen({ ...b, x: b.x + Math.round(dx), y: b.y + Math.round(dy) }),
-  );
-  saveAnchorSoon(win);
+  anchor = { x: anchor.x + Math.round(dx), y: anchor.y + Math.round(dy) };
+  place(win, false);
+  saveAnchorSoon();
 }
