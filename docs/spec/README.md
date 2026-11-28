@@ -1,6 +1,6 @@
 # 명세 목차
 
-기준 문서: Spacelog PRD (2026-11-25), 화면정의서 [screen-definition-v1.md](../screen-definition/screen-definition-v1.md) (프로토타입 v2 `docs/design/spacelog-prototype-v2.html` 기준). 웹 화면이 다르면 화면정의서를 따른다.
+기준 문서: Spacelog PRD (2026-11-25), 화면정의서 [screen-definition-v1.md](../screen-definition/screen-definition-v1.md) (프로토타입 v2 `docs/design/spacelog-prototype-v2.html` 기준). 웹 화면이 다르면 화면정의서를 따른다. 시안 v3(`docs/design/spacelog-prototype-v3.html`, `docs/design/spacelog-login-v3.html`)에서 바뀐 내용과 2026-11-28 결정은 각 명세와 화면정의서에 반영했다.
 `[확인 필요]`는 아직 정하지 않은 내용이다. 구현 전에 사용자에게 선택지를 주고 물어본다.
 
 - 요구사항: [requirements.md](requirements.md)
@@ -27,9 +27,10 @@
 
 | 화면정의서 | 기능 | 관련 명세 |
 | --- | --- | --- |
+| [0-7](../screen-definition/screen-definition-v1.md#0-7-공통-상태와-오류) | 공통 상태 (앱 첫 로딩, Space 준비, 404, 연결 끊김, 오류 알림) | 03, 05 |
 | [F-08](../screen-definition/screen-definition-v1.md#f-08-분류-안-된-기록-카드) | 빠른 분류 카드 ('분류 안 된 기록') | 04, 06 |
 | [F-15](../screen-definition/screen-definition-v1.md#f-15-함께-볼-만한-기록--돌아가기) | 돌아가기 띠 (함께 볼 만한 기록에서 넘어왔을 때) | 07 |
-| [F-21](../screen-definition/screen-definition-v1.md#f-21-긴-답-크게-보기) | 긴 답 크게 보기 | 08 |
+| [F-21](../screen-definition/screen-definition-v1.md#f-21-긴-답-새-창으로-보기) | 긴 답 새 창으로 보기 | 08 |
 | [F-22](../screen-definition/screen-definition-v1.md#f-22-자주-묻는-질문) | 자주 묻는 질문 | 08 |
 | [F-23](../screen-definition/screen-definition-v1.md#f-23-챗봇-설정) | 챗봇 설정 (챗봇이 읽지 않을 그룹) | 08 |
 | [F-25](../screen-definition/screen-definition-v1.md#f-25-모바일-형식) | 모바일 형식 (상단바, 사이드바) | 03 |

@@ -35,7 +35,6 @@ npm workspaces 모노레포. workspaces는 ["apps/desktop", "apps/web", "package
 4. apps/web → apps/worker: 가공 요청 전달 후 즉시 응답
 5. apps/worker: 글자 추출 + 원문 조각 벡터 후 status를 done 또는 failed로 변경 (AI 요약은 하지 않음)
 - AI 분석(AI 정리글)은 저장 흐름과 별개. 기록 상세의 'AI 분석하기'·챗봇 요청 → apps/web API → apps/worker (analysis_status: none → analyzing → done/failed)
-- 저장 창에서 'AI 추천'을 누르면 저장 전에 1~5단계를 먼저 하고('분류 안 된 기록'), 가공 서버가 뽑은 글자 + 메모로 기존 그룹 중 하나를 추천한다. 그룹은 사용자가 저장을 눌러야 확정된다
 - 1~3단계는 packages/shared의 수집 함수만 사용. 앱마다 업로드 코드를 따로 작성하지 말 것
 
 # 데이터 원칙
