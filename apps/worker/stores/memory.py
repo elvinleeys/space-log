@@ -16,6 +16,9 @@ class MemoryStore:
         # 사용자마다 그룹 목록, 기록마다 AI 추천 그룹
         self.groups: dict[str, list[Group]] = {}
         self.suggested: dict[str, str] = {}
+        # 기록마다 저장된 AI 정리글과 분석 상태
+        self.analyses: dict[str, dict] = {}
+        self.analysis_status: dict[str, str] = {}
 
     def add(
         self,
@@ -59,3 +62,26 @@ class MemoryStore:
         if record is None or record.status == "deleting":
             return
         self.suggested[record_id] = group_id
+
+    def save_analysis(
+        self,
+        record_id: str,
+        one_line: str,
+        key_points: list[str],
+        context: str | None,
+    ) -> None:
+        record = self.records.get(record_id)
+        if record is None or record.status == "deleting":
+            return
+        self.analyses[record_id] = {
+            "summary": one_line,
+            "summary_detail": {"one_line": one_line, "key_points": key_points},
+            "analyzed_context": context,
+        }
+        self.analysis_status[record_id] = "done"
+
+    def set_analysis_status(self, record_id: str, status: str) -> None:
+        record = self.records.get(record_id)
+        if record is None or record.status == "deleting":
+            return
+        self.analysis_status[record_id] = status

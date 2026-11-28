@@ -9,8 +9,15 @@ from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException
 import config
 from index.base import VectorIndex
 from index.null import NullIndex
+from analysis import analyze_record
 from pipeline import process_record
-from schemas import Health, ProcessAccepted, ProcessRequest
+from schemas import (
+    AnalyzeAccepted,
+    AnalyzeRequest,
+    Health,
+    ProcessAccepted,
+    ProcessRequest,
+)
 from stores.base import RecordStore
 
 logging.basicConfig(level=logging.INFO)
@@ -59,3 +66,18 @@ def request_process(
     """가공(글자 추출 + 원문 조각)을 맡긴다. 바로 응답하고 가공은 뒤에서 한다."""
     background.add_task(process_record, str(body.record_id), store, index)
     return ProcessAccepted(record_id=body.record_id)
+
+
+@app.post("/analyze", status_code=202, dependencies=[Depends(require_secret)])
+def request_analysis(
+    body: AnalyzeRequest,
+    background: BackgroundTasks,
+    store: RecordStore = Depends(get_store),
+    index: VectorIndex = Depends(get_index),
+) -> AnalyzeAccepted:
+    """AI 분석(핵심 1줄 + 요약 3개)을 맡긴다. 바로 응답하고 분석은 뒤에서 한다.
+
+    analysis_status는 웹 서버가 analyzing으로 바꿔 두고 부른다. 끝나면 done 또는 failed가 된다.
+    """
+    background.add_task(analyze_record, str(body.record_id), store, index)
+    return AnalyzeAccepted(record_id=body.record_id)

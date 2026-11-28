@@ -4,6 +4,8 @@
 로컬 Supabase를 띄운 뒤 기록 하나가 queued → done이 되는지 확인하고 이 주의를 지운다.
 """
 
+from datetime import UTC, datetime
+
 from supabase import Client, create_client
 
 import config
@@ -77,6 +79,37 @@ class SupabaseStore:
         (
             self.client.table("information_record")
             .update({"suggested_group_id": group_id})
+            .eq("record_id", record_id)
+            .neq("status", "deleting")
+            .execute()
+        )
+
+    def save_analysis(
+        self,
+        record_id: str,
+        one_line: str,
+        key_points: list[str],
+        context: str | None,
+    ) -> None:
+        self._update_record(
+            record_id,
+            {
+                "summary": one_line,
+                "summary_detail": {"one_line": one_line, "key_points": key_points},
+                "analyzed_at": datetime.now(UTC).isoformat(),
+                "analyzed_context": context,
+                "analysis_moved_at": None,
+                "analysis_status": "done",
+            },
+        )
+
+    def set_analysis_status(self, record_id: str, status: str) -> None:
+        self._update_record(record_id, {"analysis_status": status})
+
+    def _update_record(self, record_id: str, values: dict) -> None:
+        (
+            self.client.table("information_record")
+            .update(values)
             .eq("record_id", record_id)
             .neq("status", "deleting")
             .execute()

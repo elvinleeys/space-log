@@ -19,6 +19,7 @@ VISION_MAX_EDGE = 1536
 AI_TIMEOUT_SECONDS = 30
 # AI에 보내는 글자 수 상한. 넘는 부분은 보내지 않는다 (비용과 답 속도)
 RECOMMEND_MAX_CHARS = 4000
+ANALYSIS_MAX_CHARS = 60000
 
 # svg에서 글자가 안 나올 때 그림으로 바꿔 OCR로 읽을지. 지금은 끈다 (파일 안의 글자만 뽑는다. 그림 설명은 위 설정을 따른다)
 SVG_OCR_ENABLED = False
@@ -46,13 +47,18 @@ def store_kind() -> str:
 #   AI_API_KEY       그 회사의 키
 #   VISION_MODEL     그림 설명에 쓸 모델
 #   RECOMMEND_MODEL  그룹 추천에 쓸 모델 (recommend.py)
+#   ANALYSIS_MODEL   AI 분석(AI 정리글)에 쓸 모델 (analysis.py)
 # 일의 모델을 비워 두면 그 회사의 기본 모델을 쓴다
 AI_DEFAULT_MODELS = {
     "openai": "gpt-6.2-astra",
     "claude": "claude-opus-5-5",
     "gemini": "gemini-3.8-flash",
 }
-AI_TASK_MODEL_ENV = {"vision": "VISION_MODEL", "recommend": "RECOMMEND_MODEL"}
+AI_TASK_MODEL_ENV = {
+    "vision": "VISION_MODEL",
+    "recommend": "RECOMMEND_MODEL",
+    "analysis": "ANALYSIS_MODEL",
+}
 
 
 def ai_provider() -> str:

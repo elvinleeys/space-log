@@ -14,5 +14,14 @@ class ProcessAccepted(BaseModel):
     accepted: bool = True
 
 
+class AnalyzeRequest(BaseModel):
+    record_id: UUID
+
+
+class AnalyzeAccepted(BaseModel):
+    record_id: UUID
+    accepted: bool = True
+
+
 class Health(BaseModel):
     ok: bool = True

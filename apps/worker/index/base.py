@@ -23,3 +23,10 @@ class VectorIndex(Protocol):
         record는 저장 직전에 DB에서 다시 읽은 값이다. 조각의 글(text)은 payload에 넣지 않는다.
         """
         ...
+
+    def replace_summary(self, record: Record, text: str) -> None:
+        """그 기록의 기존 요약본 벡터를 지우고 새로 저장한다 (기록마다 1개, vector_kind는 summary).
+
+        text는 핵심 1줄 + 요약 3개를 합친 글이다. payload 규칙은 replace_chunks와 같다.
+        """
+        ...
