@@ -4,6 +4,15 @@
 export const CHARACTER_SIZES = ['h-13', 'h-16', 'h-19', 'h-26', 'h-32', 'h-38'];
 export const DEFAULT_CHARACTER_SIZE = 2;
 
+/**
+ * 저장 창의 AI 그룹 추천. 방향이 아직 정해지지 않아 여기서 켜고 끈다.
+ * - 'off': 추천 없음
+ * - 'button': 'AI 추천' 버튼을 눌렀을 때만 추천
+ * - 'auto': 저장 창이 열리면 바로 추천 (버튼 없음)
+ */
+export type AiRecommendMode = 'off' | 'button' | 'auto';
+export const AI_RECOMMEND: AiRecommendMode = 'off';
+
 export const POLL_INTERVAL_MS = 3000;
 export const POLL_TIMEOUT_MS = 2 * 60 * 1000;
 
@@ -75,6 +84,10 @@ export const TEXT = {
   },
   save: {
     group: '그룹',
+    recommend: 'AI 추천',
+    recommending: '추천 중…',
+    noRecommendation: '추천할 그룹을 찾지 못했어요',
+    aiBadge: 'AI 추천',
     newGroup: '새 그룹 이름',
     addGroup: '그룹 만들기',
     sourceUrl: '출처 주소 (선택)',

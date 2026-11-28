@@ -1,7 +1,7 @@
 // 가짜 응답. 서버 없이 화면과 알림을 확인하려고 둔다.
 import type { Group } from '@/entities/group';
 import { validateCreateRecordRequest } from '@space-log/shared';
-import { toCreateRecordRequest } from '@/entities/record';
+import { itemLabel, toCreateRecordRequest } from '@/entities/record';
 import type { CollectorApi } from './types';
 
 export type MockScenario = 'success' | 'saveFail' | 'processFail';
@@ -36,6 +36,16 @@ const groups: Group[] = [
   { id: gid(6), name: 'CSV 데이터', color: '#7fe3ff' },
 ];
 
+// 추천 흉내: 그룹마다 낱말 몇 개로 고른다
+const KEYWORDS: Record<string, string[]> = {
+  [gid(6)]: ['.csv', '데이터'],
+  [gid(5)]: ['회의'],
+  [gid(4)]: ['디자인', 'figma', 'ui', '.png', '.jpg', '.jpeg', '.svg', '캡처'],
+  [gid(1)]: ['기획', 'prd', '로드맵', '.pdf'],
+  [gid(2)]: ['http', '.html', '.md', '.txt'],
+  [gid(3)]: ['생각', '메모', '아이디어'],
+};
+
 const polls = new Map<string, number>();
 
 export const mockApi: CollectorApi = {
@@ -48,6 +58,15 @@ export const mockApi: CollectorApi = {
     const group = { id: crypto.randomUUID(), name };
     groups.push(group);
     return group;
+  },
+  async recommendGroup(item) {
+    await wait(700);
+    const text = itemLabel(item).toLowerCase();
+    return (
+      Object.keys(KEYWORDS).find((id) =>
+        KEYWORDS[id].some((word) => text.includes(word)),
+      ) ?? null
+    );
   },
   async saveRecord(item, groupId) {
     await wait(900);

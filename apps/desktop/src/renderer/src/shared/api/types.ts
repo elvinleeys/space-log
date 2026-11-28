@@ -5,6 +5,8 @@ import type { CollectItem, RecordStatus } from '@/entities/record';
 export interface CollectorApi {
   listGroups(): Promise<Group[]>;
   createGroup(name: string): Promise<Group>;
+  /** 어울리는 그룹의 id. 없으면 null. AI 추천을 켰을 때만 부른다 (shared/config의 AI_RECOMMEND) */
+  recommendGroup(item: CollectItem, groups: Group[]): Promise<string | null>;
   saveRecord(item: CollectItem, groupId: string): Promise<{ recordId: string }>;
   getRecordStatus(recordId: string): Promise<RecordStatus>;
 }
