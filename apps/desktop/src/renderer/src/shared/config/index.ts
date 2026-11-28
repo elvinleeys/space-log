@@ -38,8 +38,8 @@ interface BubbleSpec {
 
 export const BUBBLES: Record<BubbleKind, BubbleSpec> = {
   uploading: { text: '받는 중이에요', hideAfterMs: null },
-  queued: { text: '받았어요! 정리하고 있어요', hideAfterMs: 2400 },
-  done: { text: '정리 끝! 저장했어요', hideAfterMs: 2400 },
+  queued: { text: '받았어요! 저장하고 있어요', hideAfterMs: 2400 },
+  done: { text: '저장했어요!', hideAfterMs: 2400 },
   unsupported: {
     text: 'csv, txt, md, jpeg, jpg, png, svg, HTML, PDF 파일만 넣을 수 있어요',
     hideAfterMs: 4500,
@@ -50,7 +50,7 @@ export const BUBBLES: Record<BubbleKind, BubbleSpec> = {
   },
   saveFailed: { text: '저장하지 못했어요', hideAfterMs: null },
   processFailed: {
-    text: '받았지만 정리하지 못했어요. 웹에서 확인해 주세요',
+    text: '받았지만 다 저장하지 못했어요. 웹에서 확인해 주세요',
     hideAfterMs: null,
   },
   // 아래는 명세 표에 없는 상황이라 새로 붙인 문구다
